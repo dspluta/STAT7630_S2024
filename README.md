@@ -2,7 +2,7 @@
 ## STAT 7630, Spring 2024
 
 - Time: 1000-1115 TR
-- Room: 1046 Pavilion I
+- Room: 1026 Pavilion I
 - Textbook: A Modern Approach to Regression with R, Simon Sheather, Springer, 3rd Edition
 - Credits: 3
 
