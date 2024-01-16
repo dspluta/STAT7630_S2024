@@ -1,0 +1,227 @@
+---
+title: "Augusta University: STAT 7630"
+subtitle: "Applied Linear Models"
+author: "Dustin Pluta"
+date: "2024 JAN 09"
+output:
+  xaringan::moon_reader:
+    css: [metropolis-fonts, "my-theme.css"]
+    lib_dir: libs
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    nature:
+      highlightStyle: haddock
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.align="center")
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(tidyr)
+```
+
+
+# Two-way ANOVA
+
+### Luteinizing Hormone Study
+
+_Rice 12.5.23_
+
+> For a study of the release of luteinizing hormone (LH), male and female rats kept in constant light were compared to male and female rats in a regime of 14 h of light and 10 h of darkness. Various dosages of luteinizing releasing factor (LRF) were given: control (saline), 10, 50, 250, and 1250 ng. Levels of LH (in nanograms per milliliter of serum) were measured in blood samples at a later time.  
+
+
+---
+
+# Two-way ANOVA
+
+### Luteinizing Hormone Study
+
+_Rice 12.5.23_
+
+- LH plays an important role in regulation of estrogen and testosterone, and so may exhibit different effects in male and female rats.
+
+- We wish to analyze the data to determine the effects of light regime and LRF on release of LH.
+
+- Specifically, we want to know:
+
+  + Considering male rats' data separately, do mean LH levels depend on light regime?
+  
+  + Do mean LH levels depend on LRF dosage?
+  
+  + Is there an interaction between LRF dosage and light regime?
+  
+---
+
+# Two-way ANOVA
+
+```{r, echo = TRUE}
+dat_wide <- read_csv("/home/dustin/Dropbox/AU/Teaching/STAT7630/Lectures/Lectures_source/dat/datasets/Chapter 12/LHmale.csv")
+dat_wide
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+dat <- dat_wide %>% gather(value = "LH", key = "Light", -Dose)
+dat
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+dat_summary <- dat %>% group_by(Dose, Light) %>% summarize(LH_mean = mean(LH), LH_sd = sd(LH) / n(), upr = LH_mean + 2 * LH_sd, lwr = LH_mean - 2 * LH_sd)
+dat_summary
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+ggplot(dat) + 
+  geom_boxplot(aes(x = factor(Dose), y = LH, fill = factor(Dose))) + 
+  ggtitle("Marginal Mean LH across Dose")
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+ggplot(dat) + 
+  geom_boxplot(aes(x = Light, y = LH, fill = Light)) + 
+  ggtitle("Marginal Mean LH across Light Type")
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+ggplot(dat) + 
+  geom_boxplot(aes(x = factor(Dose), y = LH, fill = Light), alpha = 0.5) +
+  ggtitle("LH Mean by Light-Dose Combination") +
+  xlab("Dose")
+```
+
+
+---
+
+# Two-way ANOVA
+
+```{r}
+ggplot(dat_summary) + 
+  geom_segment(aes(x = factor(Dose), xend = factor(Dose), y = lwr, yend = upr, color = Light), size = 2, alpha = 0.75) +
+  geom_line(aes(x = factor(Dose), y = LH_mean, group = Light, linetype = Light, color = Light), size = 2) + 
+  geom_point(aes(x = factor(Dose), y = LH_mean, group = Light, fill = Light), size = 2.5, pch = 23) +
+  ggtitle("Interaction Plot for LH Data") + 
+  xlab("Dose")
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+fit_Dose <- lm(LH ~ factor(Dose), data = dat)
+anova(fit_Dose)
+```
+
+---
+
+# Two-way ANOVA
+
+
+```{r}
+fit_Light <- lm(LH ~ Light, data = dat)
+anova(fit_Light)
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+fit_no_int <- lm(LH ~ factor(Dose) + Light, data = dat)
+anova(fit_no_int)
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+fit_int <- lm(LH ~ factor(Dose) + Light + Light:factor(Dose), data = dat)
+anova(fit_int)
+```
+
+---
+
+```{r}
+plot(fit_int$fitted, fit_int$residuals, ylab = "Residuals", xlab = "Fitted")
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+qqnorm(fit_int$residuals)
+qqline(fit_int$residuals)
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+dat$LH_log <- log(dat$LH)
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+dat_summary <- dat %>% group_by(Dose, Light) %>% summarize(LH_mean = mean(LH_log), LH_sd = sd(LH_log) / n(), upr = LH_mean + 2 * LH_sd, lwr = LH_mean - 2 * LH_sd)
+ggplot(dat_summary) + 
+  geom_segment(aes(x = factor(Dose), xend = factor(Dose), y = lwr, yend = upr, color = Light), size = 2, alpha = 0.75) +
+  geom_line(aes(x = factor(Dose), y = LH_mean, group = Light, linetype = Light, color = Light), size = 2) + 
+  geom_point(aes(x = factor(Dose), y = LH_mean, group = Light, fill = Light), size = 2.5, pch = 23) +
+  ggtitle("Interaction Plot for LH Data") + 
+  xlab("Dose")
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+fit_int_log <- lm(LH_log ~ factor(Dose) + Light + Light:factor(Dose), data = dat)
+anova(fit_int_log)
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+plot(fit_int_log$fitted, fit_int_log$residuals, ylab = "Residuals", xlab = "Fitted")
+```
+
+---
+
+# Two-way ANOVA
+
+```{r}
+qqnorm(fit_int_log$residuals)
+qqline(fit_int_log$residuals)
+```
+

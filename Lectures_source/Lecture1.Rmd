@@ -1,0 +1,642 @@
+---
+title: "Augusta University: STAT 7630"
+subtitle: "Applied Linear Models"
+author: "Dustin Pluta"
+date: "2024 JAN 09"
+output:
+  xaringan::moon_reader:
+    css: [metropolis-fonts, "my-theme.css"]
+    lib_dir: libs
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    nature:
+      highlightStyle: haddock
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(echo = TRUE, fig.align="center", message = FALSE)
+```
+
+# Course Introduction
+
+- **Website:** https://github.com/dspluta/STAT7630_SPRING2024
+- **Syllabus:** https://github.com/dspluta/STAT7630_SPRING2024/Syllabus.pdf
+- **Instructor email:** dpluta@augusta.edu
+
+```{r, fig.align='center', echo=FALSE, fig.width=6}
+library(ggplot2)
+y <- rnorm(100, seq(0, 1, length.out = 100), seq(0.1, 0.5, length.out = 100))
+ggplot(data.frame(y = y, x = seq(0.1, 1, length.out = 100))) + 
+  geom_point(aes(x = x, y = y)) + 
+  geom_smooth(aes(x = x, y = y), method = "lm") + 
+  theme_classic()
+```
+
+---
+
+# Review
+
+### Distributions
+
+- We will mainly focus on continuous distributions in this course.
+
+- The __cumulative density function (cdf)__ of a random variable $X$ is denoted $F(x)$, and is defined as the probability that $X < x$.
+
+$$F(x) = P(X < x)$$
+
+- The __probability density function (pdf)__ is denoted $f(x)$, and is defined as the rate of change of the cumulative probability at $x$, 
+
+$$f(x) = F^{\prime}(x).$$
+
+- The __support__ of a random variable $X$ is the set of all values for which $f(x) \neq 0$
+
+$$\text{Supp}(X) = \{x: f(x) \neq 0\}.$$
+
+---
+
+# Review
+
+### Normal Distribution: PDF
+
+The probability density function of $X \sim \mathcal{N}(\mu, \sigma^2)$ is
+
+$$f(x) = \frac{1}{\sqrt{2\pi\sigma^2}}\exp\left\{-\frac{(x - \mu)^2}{2\sigma^2}\right\}$$
+
+```{r, fig.align='center', fig.height=4, echo = FALSE}
+x <- curve(dnorm(x, mean = 0, sd = 0.5), 
+           from = -3, to = 3, ylab = "Density", 
+           col = "blue", main = "PDF of N(0, sigma^2)")
+curve(dnorm(x, mean = 0, sd = 2), add = T, col = "red")
+curve(dnorm(x, mean = 0, sd = 1), add = T)
+legend("topright", legend = c("sigma = 0.5", "sigma = 1", "sigma = 2"), 
+       col = c("blue", "black", "red"), lty = 1)
+```
+
+---
+
+# Review
+
+### Sums of Normally Distributed Variables
+
+Suppose $X_1 \sim \mathcal{N}(\mu_1, \sigma^2_1), X_2 \sim \mathcal{N}(\mu_2, \sigma^2_2)$, and let $a, b$ be real constants.
+
+1. $aX_1 + bX_2 \sim \mathcal{N}(a\mu_1 + b \mu_2, a^2\sigma^2_1 + b^2\sigma^2_2)$.
+
+2. In particular, for $X_i \overset{iid}\sim \mathcal{N}(\mu, \sigma^2), i = 1, \dots, n$, we have 
+$$\overline{X} := \frac{1}{n} \sum_{i = 1}^n X_i \sim \mathcal{N}\left(\mu, \frac{\sigma^2}{n}\right).$$
+
+---
+
+# Review
+
+### $\chi^2$ Distribution
+
+$X \sim \chi^2_n$ has pdf
+
+$$f(x) = \frac{1}{2^{n / 2}\Gamma(n / 2)} x^{n / 2 - 1}e^{-x / 2}.$$
+
+The parameter $n$ is the _degrees of freedom_ of the distribution.
+
+```{r, echo = FALSE, fig.height=4}
+x <- curve(dchisq(x, df = 1), 
+           from = 0, to = 5, ylab = "Density", 
+           col = "blue", main = "PDF of Chi-sq")
+curve(dchisq(x, df = 3), 
+           from = 0, to = 5, ylab = "Density", 
+           col = "green", add = T)
+curve(dchisq(x, df = 5), 
+           from = 0, to = 5, ylab = "Density", 
+           col = "red", add = T)
+legend("topright", legend = c("df = 1", "df = 4", "df = 9"), 
+       col = c("blue", "green", "red"), lty = 1)
+```
+
+---
+
+# Review
+
+### $\chi^2$ Distribution
+
+The following is a key property of the $\chi^2$ distribution that we will use repeatedly throughout the course:
+
+.full-width[.content-box-green[For $Z_1, \dots, Z_n \overset{iid}\sim N(0, 1)$, 
+$$\sum_{i = 1}^n Z_i^2 \sim \chi^2_n$$.]]
+
+---
+
+# Review
+
+### $t$ Distribution
+
+We will define the $t$ distribution as a combination of a standard normal $Z \sim N(0, 1)$, and $V \sim \chi^2_v$:
+
+$$T = \frac{Z}{\sqrt{V / v}} \sim t(v),$$
+
+where $v$ is the degrees of freedom of the distribution.
+
+---
+
+# Review
+
+### $t$ Distribution
+
+```{r, echo = FALSE}
+x <- curve(dnorm(x, 0, 1), from = -3.5, to = 3.5, ylab = "Density",
+           col = "black", main = "PDF of t")
+curve(dt(x, df = 1), 
+         from = -3.5, to = 3.5, add = T, col = "blue")
+curve(dt(x, df = 3), 
+           from = -3.5, to = 3.5, ylab = "Density", 
+           col = "green", add = T)
+curve(dt(x, df = 9), 
+           from = -3.5, to = 3.5, ylab = "Density", 
+           col = "red", add = T)
+legend("topright", legend = c("Normal", "df = 1", "df = 3", "df = 9"), 
+       col = c("black", "blue", "green", "red"), lty = 1)
+```
+
+---
+
+# Review
+
+### $F$ Distribution
+
+We will encounter the $F$ distribution frequently throughout the course as well.
+
+Let $U \sim \chi^2_u$ and $V \sim \chi^2_v$, with $U$ and $V$ independent.  Then
+
+$$X = \frac{U / u}{V / v} \sim F_{u, v},$$
+
+where $u$ and $v$ are the degrees of freedom of the distribution.
+
+---
+
+# Review
+
+### $F$ Distribution
+
+```{r, echo = FALSE}
+x <- curve(df(x, df1 = 100, df2 = 100), 
+           from = 0, to = 5, ylab = "Density", 
+           col = "black", main = "PDF of F(df1, df2)")
+curve(df(x, df1 = 5, df2 = 2), 
+           from = 0, to = 5, ylab = "Density", 
+           col = "green", add = T)
+curve(df(x, df1 = 10, df2 = 1), 
+           from = 0, to = 5, ylab = "Density", 
+           col = "red", add = T)
+curve(df(x, df1 = 1, df2 = 1), 
+           from = 0, to = 5, ylab = "Density", 
+           col = "blue", add = T)
+legend("topright", legend = c("df1 = 1, df2 = 1", "df1 = 5, df2 = 2", "df1 = 10, df2 = 1", "df1 = 100, df2 = 100"), 
+       col = c("blue", "green", "red", "black"), lty = 1)
+```
+
+---
+
+# Review
+
+### Types of Problems in Statistics
+
+- __Hypothesis Testing__: Make a binary (Yes/No) decision regarding some unknown quantity.
+
+- __Estimation__: Estimate the value of some unknown quantity, and characterize the uncertainty in the estimate.
+
+- __Prediction__: Predict the values of new observations from existing observations.
+
+We will primarily focus on a review of hypothesis testing this week.
+
+---
+
+# Review
+
+#### Hypothesis Testing
+
+In general, a Null Hypothesis Significance Test (NHST) has the form
+
+$$\begin{aligned}
+&H_0: \theta \in \Omega_0, ~~~ \text{(null hypothesis)}\\
+&H_1: \theta \in \Omega_1, ~~~ \text{(alternative hypothesis)}
+\end{aligned}$$
+
+where $\Omega_0 \subset \mathbb{R}$ is the set of parameter values satisfying the null hypothesis, and similarly for $\Omega_1$.
+
+- When $\Omega_0 = \{\theta_0\}$ (contains a single value), then $H_0$ is $H_0: \theta = \theta_0$, and is called a _simple hypothesis_.
+
+- If $\Omega_0$ contains more than one value, $H_0$ is called a _composite hypothesis_.
+
+---
+
+# Review
+
+##### Null Hypothesis Significance Testing
+
+$$\begin{aligned}
+&H_0: \theta \in \Omega_0, ~~~ \text{(null hypothesis)}\\
+&H_1: \theta \in \Omega_1, ~~~ \text{(alternative hypothesis)}
+\end{aligned}$$
+
+at level of significance $\alpha$, given a sample $X_1, \dots, X_n$.
+
+1. State the null and alternative hypotheses, the assumed sampling distribution of the data.
+
+2. Choose an appropriate test statistic $T(X)$ for the null hypothesis.
+
+3. Check model assumptions. (e.g. QQ-plot, histogram, scatterplot)
+
+4. Compute the reference distribution and corresponding $P$-value for the test statistic.
+
+5. Conclude one of:
+
+  - $P < \alpha \rightarrow$ __Fail to reject__ $H_0$: 
+  There is insufficient evidence to reject the null hypothesis at the $\alpha$ level of significance. 
+  - $P \ge \alpha \rightarrow$ __Reject__ $H_0$: 
+  There is sufficient evidence to reject the null hypothesis (and accept the alternative hypothesis) at the $\alpha$ level of significance.
+
+
+---
+
+# Review
+
+.content-box-blue[__Definition: P-value__
+
+The __P-value__ of a NHST is the probability of seeing a test statistic as extreme or more extremem than the observed test statistic, assuming the null hypothesis is true.]
+
+```{r, echo = FALSE, fig.align='center', fig.width=6, fig.height=4}
+set.seed(1234)
+n <- 20
+mu <- 0.9
+sigma <- 0.5
+x <- rnorm(n, mu, sigma)
+
+mu_0 <- 1
+s_0 <- sqrt(1 / n * sum((x - mu_0)^2))
+mu_hat <- mean(x)
+s <- sqrt(1 / (n - 1) * sum((x - mu_hat)^2))
+T_stat <- (mu_hat - mu_0) / (s / sqrt(n))
+t_seq <- seq(-4, 4, 0.01)
+t_pdf <- dt(t_seq, df = n - 1)
+curve(dt(x, df = n - 1), from = -4, to = 4, ylab = "t Density", xlab = "x",
+      main = "Two-sided t-test")
+polygon(c(t_seq[t_seq <= T_stat], T_stat), c(t_pdf[t_seq <= T_stat], 0), col=rgb(0, 0, 1, 0.6))
+polygon(c(t_seq[t_seq >= -T_stat], -T_stat), c(t_pdf[t_seq >= -T_stat], 0), col=rgb(0, 0, 1, 0.6))
+legend("topright", col = c("blue"), legend = c("P-value"), lty = 1)
+```
+
+---
+
+# Review
+
+##### One Sample $z$-test
+
+__Step 1__
+
+Suppose $X_1, \dots, X_n \overset{iid}\sim \mathcal{N}(\mu, \sigma^2)$, with $\sigma^2$ known.
+
+We wish to test the hypothesis
+
+$$\begin{aligned}
+&H_0: \mu = \mu_0\\
+&H_1: \mu > \mu_0.
+\end{aligned}$$
+
+---
+
+# Review
+
+##### One Sample $z$-test
+
+__Step 2__
+
+We will test $H_0$ with test statistic $T(X) = \frac{\overline X - \mu_0}{\sigma}$.  
+
+"True" Distribution: $~~~\overline X \sim \mathcal{N}(\mu, \sigma^2 / n)$
+
+Null Distribution: $~~~\overline X \overset{H_0}\sim \mathcal{N}(\mu_0, \sigma^2 / n)$
+
+--
+<br>
+
+***
+
+__Note:__  A statistic based on $~~~\overline{X}$ is a natural choice, and is also theoretically motivated, since it is
+
+- The _minimum variance unbiased linear estimator_ for $\mu$
+
+- The _Maximum Likelihood Estimator_ for $\mu$
+
+- More on this later...
+
+---
+
+# Review
+
+__Step 3__ Check model assumptions.
+
+```{r, echo = FALSE, fig.height=3.75, fig.align='center'}
+knitr::include_graphics("img/understanding_qqplots.png")
+```
+
+---
+
+# Review
+
+__Step 4__ Compute reference distribution.
+
+- Reference Distribution: $T(X) \overset{H_0}\sim \mathcal{N}(0, 1)$
+
+```{r, echo = FALSE, fig.height=5}
+t_seq <- seq(-4, 4, 0.01)
+t_pdf <- dt(t_seq, df = n - 1)
+curve(dt(x, df = n - 1), from = -4, to = 4, ylab = "t Density", xlab = "x",
+      main = "Reference Distribution (assuming the null is true)")
+```
+
+---
+
+# Review
+
+__Step 5__ Make conclusion.
+
+```{r, echo = FALSE,  fig.height=5}
+t_seq <- seq(-4, 4, 0.01)
+t_pdf <- dt(t_seq, df = n - 1)
+curve(dt(x, df = n - 1), from = -4, to = 4, ylab = "Reference Density", xlab = "x",
+      main = "Two-sided test")
+polygon(c(t_seq[t_seq <= T_stat], T_stat), c(t_pdf[t_seq <= T_stat], 0), col=rgb(0, 0, 1, 0.6))
+polygon(c(t_seq[t_seq >= -T_stat], -T_stat), c(t_pdf[t_seq >= -T_stat], 0), col=rgb(0, 0, 1, 0.6))
+polygon(c(t_seq[t_seq <= qt(0.025, df = n - 1)], qt(0.025, df = n - 1)), c(t_pdf[t_seq <= qt(0.025, df = n - 1)], 0), col=rgb(1, 0, 0, 0.6))
+polygon(c(t_seq[t_seq >= -qt(0.025, df = n - 1)], -qt(0.025, df = n - 1)), c(t_pdf[t_seq >= -qt(0.025, df = n - 1)], 0), col=rgb(1, 0, 0, 0.6))
+legend("topright", col = c("blue", "red"), legend = c("P-value", "Rejection Region"), lty = 1)
+```
+
+---
+
+# Review
+
+##### Hypothesis Testing Terminology
+
+- __Type I Error__: $\alpha = P(\text{Reject } H_0 | H_0 \text{ is True})$
+
+- __Type II Error__: $\beta = P(\text{Fail to reject } H_0 | H_0 \text{ is False})$
+
+- __Power__: $1 - \beta = P(\text{Reject } H_0 | H_0 \text{ is False})$
+
+__Remarks__
+
+- In the NHST framework, $\alpha$ is selected by the researcher.
+
+- Power is determined by the choice of $\alpha$, as well as the sample size and the size of the effect being tested.
+
+---
+
+# Review
+
+##### One-sample z-test
+
+- Suppose $X_1, \dots, X_n \overset{iid}\sim \mathcal{N}(\mu, \sigma^2)$.  We wish to test $H_0: \mu = \mu_0$.  Assume $\sigma^2$ is known.
+
+- Since $\bar X$ is an unbiased sufficient statistic for $\mu$, we can use this estimator to construct our test statistic.
+
+- We want to standardize the statistic to make it easy to compute the $P$-value.
+
+- $\bar X \sim \mathcal{N}(\mu, \sigma^2)$, so 
+
+$$Z = \frac{\overline X - \mu_0}{\sigma / \sqrt{n}} \overset{H_0}\sim \mathcal{N}(0, 1).$$
+
+---
+
+# Review
+
+##### One-sample z-test
+
+- Suppose $X_1, \dots, X_n \overset{iid}\sim \mathcal{N}(\mu, \sigma^2)$.  We wish to test $H_0: \mu = \mu_0$.  Assume $\sigma^2$ is known.
+
+- We can again use $\overline X$ to construct our test statistic, but we must now also estimate $\sigma^2$.
+
+- Use the sample variance estimator, which is unbiased for $\sigma^2$:
+
+$$s^2 = \frac{1}{n - 1}\sum_{i = 1}^n (X_i - \overline X)^2.$$
+
+- Now consider test statistic $T = \frac{\bar x - \mu_0}{s / \sqrt{n}}$.  What is the reference distribution?
+
+---
+
+# Review
+
+##### One-sample z-test (cont'd)
+
+- What is the reference distribution of $T = \frac{\bar x - \mu_0}{s / \sqrt{n}}$?
+
+- Recall that $\frac{(n - 1)s^2}{\sigma^2} \sim \chi^2_{n - 1}$.
+
+- We can rewrite $T$ as
+
+$$T = \frac{Z}{\sqrt{V / v}},$$
+
+where $Z = \frac{(\overline X - \mu_0)}{\sigma}$ and $V = \frac{(n - 1) s^2}{\sigma^2}$.
+
+- Thus, $T \overset{H_0}\sim \chi^2_{n - 1}$.
+
+
+---
+
+# Review
+
+#### Example: One-sample t-test
+
+```{r, fig.align = "center", fig.height=4}
+set.seed(12)
+n <- 20
+mu <- 0
+sigma <- 0.5
+x <- rnorm(n, mu, sigma)
+hist(x, breaks = 20)
+```
+
+---
+
+# Review
+
+#### Example: One-sample t-test
+
+```{r}
+x_bar <- sum(x) / n
+s <- sqrt(sum((x - x_bar)^2) / (n - 1))
+print(x_bar)
+print(s)
+```
+
+```{r}
+test_stat <- (x_bar - 0) / (s / sqrt(n))
+print(test_stat)
+```
+
+---
+
+# Review
+
+##### Example: One-sample t-test
+
+```{r}
+pnorm(test_stat)
+```
+
+```{r}
+pt(test_stat, df = n - 1)
+```
+
+- We see that the $t$-test gives a larger $P$-value than what one would get from the normal distribution.
+
+- If one incorrectly applies a $z$-test instead of a $t$-test, the Type I error will be inflated, especially for small sample sizes.
+
+
+---
+
+# Review
+
+##### Likelihood Ratio Test
+
+---
+
+# Review
+
+##### Likelihood Ratio Test
+
+```{r}
+set.seed(1234)
+n <- 20
+mu <- 0.9
+sigma <- 0.5
+x <- rnorm(n, mu, sigma)
+```
+
+```{r}
+lik <- function(mu, sigma = 1) {
+  (2 * pi * sigma^2)^(-n / 2) * exp(- 1 / (2 * sigma^2) * sum((x - mu)^2))
+}
+mu_seq <- seq(0, 2, 0.01)
+lik_vals <- sapply(X = mu_seq, FUN = lik)
+```
+
+
+---
+
+# Review
+
+##### Likelihood Ratio Test
+
+```{r, fig.align="center", fig.height=5}
+plot(mu_seq, lik_vals, ty = "l", ylab = "Likelihood", xlab = "mu", 
+     main = "Likelihood for Simulated Data")
+```
+
+---
+
+# Review
+
+##### Likelihood Ratio Test
+
+Suppose we want to test $H_0: \mu = 1$ with the LRT.
+
+```{r, fig.height=5, fig.align="center"}
+plot(mu_seq, lik_vals, ty = "l", ylab = "Likelihood", xlab = "mu", 
+     main = "Likelihood for Simulated Data")
+abline(v = 1, col = "blue")
+abline(v = mean(x), col = "red")
+```
+
+---
+
+# Review
+
+##### Likelihood Ratio Test
+
+Suppose we want to test $H_0: \mu = 1$ using the LRT.
+
+```{r}
+set.seed(1234)
+n <- 20
+mu <- 0.9
+sigma <- 0.5
+x <- rnorm(n, mu, sigma)
+
+mu_0 <- 1
+s_0 <- sqrt(1 / n * sum((x - mu_0)^2))
+mu_hat <- mean(x)
+s <- sqrt(1 / (n - 1) * sum((x - mu_hat)^2))
+```
+
+```{r}
+F_stat <- n * (mu_hat - mu_0)^2 / s^2
+P_val <- pf(F_stat, df1 = 1, df2 = n - 1, lower.tail = FALSE)
+P_val
+```
+
+---
+
+# Review
+
+##### Likelihood Ratio Test
+
+```{r}
+t.test(x = x, mu = 1)
+```
+
+```{r}
+T_stat <- (mu_hat - mu_0) / sqrt(s^2 / n)
+2 * pt(T_stat, df = n - 1, lower.tail = T)
+```
+
+---
+
+# Review
+
+##### Likelihood Ratio Test
+
+```{r, echo=FALSE}
+f <- seq(0, 20, 0.01)
+f_pdf <- df(f, df1 = 1, df2 = n - 1)
+curve(df(x, df1 = 1, df2 = n - 1), from = 0, to = 10, ylab = "F Density", xlab = "x", main = "F Test")
+polygon(c(f[f >= F_stat], F_stat), c(f_pdf[f >= F_stat], 0), col="blue")
+```
+
+---
+
+# Review
+
+##### Likelihood Ratio Test
+
+```{r, echo=FALSE}
+t_seq <- seq(-4, 4, 0.01)
+t_pdf <- dt(t_seq, df = n - 1)
+curve(dt(x, df = n - 1), from = -4, to = 4, ylab = "t Density", xlab = "x",
+      main = "Two-sided t-test")
+polygon(c(t_seq[t_seq <= T_stat], T_stat), c(t_pdf[t_seq <= T_stat], 0), col=rgb(0, 0, 1, 0.6))
+polygon(c(t_seq[t_seq >= -T_stat], -T_stat), c(t_pdf[t_seq >= -T_stat], 0), col=rgb(0, 0, 1, 0.6))
+legend("topright", col = c("blue"), legend = c("P-value"), lty = 1)
+```
+
+---
+
+# Review
+
+##### Likelihood Ratio Test
+
+
+```{r, echo=FALSE}
+t_seq <- seq(-4, 4, 0.01)
+t_pdf <- dt(t_seq, df = n - 1)
+curve(dt(x, df = n - 1), from = -4, to = 4, ylab = "t Density", xlab = "x",
+      main = "Two-sided t-test")
+polygon(c(t_seq[t_seq <= T_stat], T_stat), c(t_pdf[t_seq <= T_stat], 0), col=rgb(0, 0, 1, 0.6))
+polygon(c(t_seq[t_seq >= -T_stat], -T_stat), c(t_pdf[t_seq >= -T_stat], 0), col=rgb(0, 0, 1, 0.6))
+polygon(c(t_seq[t_seq <= qt(0.025, df = n - 1)], qt(0.025, df = n - 1)), c(t_pdf[t_seq <= qt(0.025, df = n - 1)], 0), col=rgb(1, 0, 0, 0.6))
+polygon(c(t_seq[t_seq >= -qt(0.025, df = n - 1)], -qt(0.025, df = n - 1)), c(t_pdf[t_seq >= -qt(0.025, df = n - 1)], 0), col=rgb(1, 0, 0, 0.6))
+legend("topright", col = c("blue", "red"), legend = c("P-value", "Rejection Region"), lty = 1)
+```
+
+
+##### 
