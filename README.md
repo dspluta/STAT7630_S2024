@@ -3,7 +3,8 @@
 
 - Time: 1000-1115 TR
 - Room: 1026 Pavilion I
-- Textbook: A Modern Approach to Regression with R, Simon Sheather, Springer, 3rd Edition
+- Textbook: A Modern Approach to Regression with R, Simon Sheather, Springer, [https://link.springer.com/book/10.1007/978-0-387-09608-7]
+- Supplementary Materials: [https://gattonweb.uky.edu/sheather/book/]
 - Credits: 3
 
 - Instructor: Dustin Pluta, PhD
