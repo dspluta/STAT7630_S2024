@@ -1,0 +1,511 @@
+---
+title: "Augusta University: STAT 7630"
+subtitle: "Applied Linear Models"
+author: "Dustin Pluta"
+date: "2024 JAN 09"
+output:
+  xaringan::moon_reader:
+    css: [metropolis-fonts, "my-theme.css"]
+    lib_dir: libs
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    nature:
+      highlightStyle: haddock
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(echo = TRUE, fig.align="center", cache = TRUE, warning = FALSE)
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(tidyr)
+```
+
+# Lecture 4
+
+- Confidence Intervals
+
+- Multiple Testing
+
+---
+
+# Confidence Intervals
+
+- __Definition__ A $(1 - \alpha)100\%$ __confidence interval__ for scalar parameter $\theta$ 
+constructed from a sample $X$ is an interval $(L(X), U(X)) \subset (-\infty, \infty)$ such that the probability of such an interval containing $\theta$ is $(1 - \alpha)100\%$.
+
+- __Definition__ We refer to $(1 - \alpha)100\%$ as the __coverage__ or __coverage probability__ of the confidence interval.
+
+- The _coverage_ of the interval is the expected proportion of times that the CI will contain the true value $\theta$.  This means that the $(1 - \alpha)100\%$ confidence level is a probability statement with respect to the _distribution of confidence intervals_ constructed this way.
+
+---
+
+# Confidence Intervals
+
+- __Note__ In the frequentist framework, we assume paramters are _fixed_, not random.  
+
+- Consequently, for a given sample, the corresponding CI either contains $\theta$, or it does not.  
+
+- In other words, once the sample is drawn, there is no more randomness, 
+and we cannot make probability statements about the specific CI we constructed.
+
+
+---
+
+# Confidence Intervals
+
+### Example: One-sample Normal, unknown mean and variance
+
+Consider an iid sample $X_i \sim N(\mu, \sigma^2)$.  We wish to construct a 95\% confidence interval for $\mu$.
+
+For the one-sample t-test, we use test statistic
+
+$$T = \frac{\bar X - \mu_0}{s / \sqrt{n}} \overset{H_0}\sim t(n - 1).$$
+
+
+---
+
+# Confidence Intervals
+
+### Example: One-sample Normal, unknown mean and variance
+
+To form a 95% percent confidence interval for $\mu$, we invert this hypothesis test.  
+
+Note that if we replace $\mu_0$ with the true parameter value $\mu$, $T \sim t(n - 1)$.  Let $t_{1 - \alpha / 2}(n - 1)$ be the $(1 - \alpha / 2)$ percentile of $t$.
+
+$$\begin{aligned}
+&P(-t_{1 - \alpha / 2}(n - 1) < T < t_{1 - \alpha / 2}) = 1 - \alpha\\
+&P(-t_{1 - \alpha / 2}(n - 1) < \frac{\bar X - \mu}{s / \sqrt{n}} < t_{1 - \alpha / 2}) = 1 - \alpha\\
+&P\left(\bar X - \frac{s}{\sqrt{n}} t_{1 - \alpha / 2}(n - 1) < \mu < \bar X + \frac{s}{\sqrt{n}} t_{1 - \alpha / 2}(n - 1)\right) = 1 - \alpha\\
+\end{aligned}$$
+
+---
+
+# Confidence Intervals
+
+### Example: One-sample Normal, unknown mean and variance
+
+```{r, echo=TRUE}
+set.seed(123)
+n <- 20
+mu <- 2
+sigma <- 1
+x <- rnorm(n, mu, sigma)
+x_bar <- mean(x)
+s <- sd(x)
+```
+
+---
+
+# Confidence Intervals
+
+### Example: One-sample Normal, unknown mean and variance
+
+
+```{r, echo=FALSE}
+hist(x)
+abline(v = x_bar, col = "red")
+```
+
+
+---
+
+# Confidence Intervals
+
+### Example: One-sample Normal
+
+```{r, echo=TRUE}
+alpha <- 0.05
+lwr <- x_bar - s / sqrt(n) * pt(1 - alpha / 2, n - 1)
+upr <- x_bar + s / sqrt(n) * pt(1 - alpha / 2, n - 1)
+```
+
+```{r}
+cat(lwr, upr)
+```
+
+We see this confidence interval contains the true value $\mu = 2$.
+
+- What happens if we sample $X$ many times and form a confidence interval for each?
+
+---
+
+# Confidence Intervals
+
+### Example: One-sample Normal
+
+```{r, echo=TRUE}
+conf_int_simulation <- function(n_sims, n, mu, sigma, alpha = 0.05) {
+  results <- data.frame(lwr = rep(NA, n_sims), upr = rep(NA, n_sims))
+  
+  for (k in 1:n_sims) {
+    x <- rnorm(n, mu, sigma)
+    x_bar <- mean(x)
+    s <- sd(x)
+    lwr <- x_bar - s / sqrt(n) * qt(1 - alpha / 2, n - 1)
+    upr <- x_bar + s / sqrt(n) * qt(1 - alpha / 2, n - 1)
+    results[k, ] <- c(lwr, upr)
+  }
+  results$sim_index <- 1:nrow(results)
+  results$covers <- (mu > results$lwr) & (mu < results$upr)
+
+  return(results)
+}
+```
+
+---
+
+# Confidence Intervals
+
+```{r, echo=TRUE}
+set.seed(123)
+n_sims <- 100
+n <- 30
+mu <- 2
+sigma <- 1
+alpha <- 0.05
+
+sim_results <- conf_int_simulation(n_sims, n, mu, sigma, alpha)
+head(sim_results)
+```
+
+
+```{r, echo=FALSE}
+cat("Coverage: ", mean(sim_results$covers))
+```
+
+---
+
+# Confidence Intervals
+
+
+```{r, echo = FALSE}
+ggplot(sim_results) + 
+  geom_segment(aes(y = sim_index, yend = sim_index, x = lwr, xend = upr, color = covers), size = 1.25) + 
+  geom_segment(y = 0, yend = n_sims, x = mu, xend = mu, size = 1.25, linetype = 2)
+```
+
+---
+
+# Confidence Intervals
+
+### Example: One-sample Normal
+
+```{r, echo=TRUE}
+set.seed(123)
+n_sims <- 10000
+n <- 30
+mu <- 2
+sigma <- 1
+alpha <- 0.05
+
+sim_results <- conf_int_simulation(n_sims, n, mu, sigma, alpha)
+mean(sim_results$covers)
+```
+
+---
+
+# Confidence Intervals
+
+### Example: One-sample Normal, unknown mean and variance
+
+
+```{r, echo=FALSE}
+plot(cumsum(sim_results$covers) / 1:n_sims, ty = "l", xlab = "Coverage", ylab = "# of Simulations")
+abline(h = 1 - alpha)
+```
+
+---
+
+# Multiple Testing
+
+
+```{r}
+set.seed(123)
+n_sims <- 40
+n <- 25
+mu1 <- 0
+mu2 <- 0
+sigma <- 1
+alpha <- 0.05
+```
+
+```{r, echo=TRUE}
+sim_results1 <- conf_int_simulation(n_sims, n, mu1, sigma, alpha)
+sim_results2 <- conf_int_simulation(n_sims, n, mu2, sigma, alpha)
+combined_results <- data.frame(covers1 = sim_results1$covers, covers2 = sim_results2$covers, sim = 1:n_sims)
+combined_results$covers_all <- combined_results$covers1 & combined_results$covers2
+```
+
+```{r, echo = FALSE}
+cat("Combined coverage probability: ", mean(combined_results$covers_all), "\n")
+cat("Group 1 coverage: ", mean(sim_results1$covers), "\n")
+cat("Group 2 coverage: ", mean(sim_results2$covers), "\n")
+```
+
+---
+
+# Multiple Testing
+
+```{r, echo=FALSE}
+sim_results <- bind_rows(sim_results1, sim_results2)
+sim_results$grp <- rep(c(1, 2), each = n_sims)
+sim_results$sim <- 1:n_sims
+```
+
+
+```{r, echo=FALSE}
+ggplot(sim_results) + 
+  geom_segment(aes(y = sim, yend = sim, x = lwr, xend = upr, color = covers), size = 1.3) + 
+  xlab("CI for mu") + 
+  facet_grid(cols = vars(grp))
+```
+
+
+---
+
+# Multiple Testing
+
+```{r}
+set.seed(123)
+n_sims <- 40
+n <- 30
+mu1 <- 0
+mu2 <- 0
+mu3 <- 0
+sigma <- 1
+alpha <- 0.05
+```
+
+```{r, echo=FALSE}
+sim_results1 <- conf_int_simulation(n_sims, n, mu1, sigma, alpha)
+sim_results2 <- conf_int_simulation(n_sims, n, mu2, sigma, alpha)
+sim_results3 <- conf_int_simulation(n_sims, n, mu3, sigma, alpha)
+combined_results <- data.frame(covers1 = sim_results1$covers, covers2 = sim_results2$covers, covers3 = sim_results3$covers)
+combined_results$covers_all <- combined_results$covers1 & combined_results$covers2 & combined_results$covers3
+```
+
+```{r, echo = FALSE}
+cat("Combined coverage probability: ", mean(combined_results$covers_all), "\n")
+cat("Group 1 coverage: ", mean(sim_results1$covers), "\n")
+cat("Group 2 coverage: ", mean(sim_results2$covers), "\n")
+cat("Group 3 coverage: ", mean(sim_results3$covers))
+```
+
+---
+
+# Multiple Testing
+
+```{r}
+set.seed(123)
+n_sims <- 10000
+n <- 30
+mu1 <- 0
+mu2 <- 0
+mu3 <- 0
+mu4 <- 0
+sigma <- 1
+alpha <- 0.05
+```
+
+```{r, echo=FALSE}
+sim_results1 <- conf_int_simulation(n_sims, n, mu1, sigma, alpha)
+sim_results2 <- conf_int_simulation(n_sims, n, mu2, sigma, alpha)
+sim_results3 <- conf_int_simulation(n_sims, n, mu3, sigma, alpha)
+sim_results4 <- conf_int_simulation(n_sims, n, mu4, sigma, alpha)
+combined_results <- data.frame(covers1 = sim_results1$covers, covers2 = sim_results2$covers, covers3 = sim_results3$covers, covers4 = sim_results4$covers)
+combined_results$covers_all <- combined_results$covers1 & combined_results$covers2 & combined_results$covers3 & combined_results$covers4
+```
+
+```{r, echo = FALSE}
+cat("Combined coverage probability: ", mean(combined_results$covers_all), "\n")
+cat("Group 1 coverage: ", mean(sim_results1$covers), "\n")
+cat("Group 2 coverage: ", mean(sim_results2$covers), "\n")
+cat("Group 3 coverage: ", mean(sim_results3$covers), "\n")
+cat("Group 4 coverage: ", mean(sim_results4$covers))
+```
+
+---
+
+# Multiple Testing
+
+## Bonferroni Correction
+
+- When conducting $K$ hypothesis tests simultaneously, the _Bonferroni method_ adjusts the nominal significance level 
+from $\alpha$ to $\alpha / K$ on each individual test, in order to maintain the correct Type I error globally, referred to 
+as the *familywise error rate* (FWER).  
+
+- When constructing multiple confidence intervals for the one-sample normal case, this has the form
+
+$$\bar X \pm \frac{s}{\sqrt{n}}t_{1 - \alpha / (2K)}(n - 1).$$
+
+- The name of this method is from the Bonferroni inequality from probability theory, which can be stated as
+
+$$P\left(\cup_{k = 1}^K A_k\right) \leq \sum_{k = 1}^K P(A_k),$$
+
+for some set of events $A_k, k = 1, \dots, K$.
+
+---
+
+# Multiple Testing
+
+## Bonferroni Correction
+
+```{r, echo=TRUE}
+bonferroni_simulation <- function(n_sims, n, mu, sigma, K, alpha = 0.05) {
+  results <- data.frame(lwr = rep(NA, n_sims), upr = rep(NA, n_sims))
+  
+  for (k in 1:n_sims) {
+    x <- rnorm(n, mu, sigma)
+    x_bar <- mean(x)
+    s <- sd(x)
+    lwr <- x_bar - s / sqrt(n) * qt(1 - alpha / (2 * K), n - 1)
+    upr <- x_bar + s / sqrt(n) * qt(1 - alpha / (2 * K), n - 1)
+    results[k, ] <- c(lwr, upr)
+  }
+  results$sim_index <- 1:nrow(results)
+  results$covers <- (mu > results$lwr) & (mu < results$upr)
+
+  return(results)
+}
+```
+
+---
+
+# Multiple Testing
+
+## Bonferroni Correction
+
+```{r}
+set.seed(12)
+n_sims <- 40
+n <- 25
+mu1 <- 0
+mu2 <- 0
+sigma <- 1
+K <- 2
+alpha <- 0.05
+```
+
+```{r, echo=FALSE}
+sim_results1 <- bonferroni_simulation(n_sims, n, mu1, sigma, K, alpha)
+sim_results2 <- bonferroni_simulation(n_sims, n, mu2, sigma, K, alpha)
+combined_results <- data.frame(covers1 = sim_results1$covers, covers2 = sim_results2$covers, sim = 1:n_sims)
+combined_results$covers_all <- combined_results$covers1 & combined_results$covers2
+```
+
+```{r, echo = FALSE}
+cat("Combined coverage probability: ", mean(combined_results$covers_all), "\n")
+cat("Group 1 coverage: ", mean(sim_results1$covers), "\n")
+cat("Group 2 coverage: ", mean(sim_results2$covers), "\n")
+```
+
+---
+
+# Multiple Testing
+
+## Bonferroni Correction
+
+```{r, echo=FALSE}
+sim_results <- bind_rows(sim_results1, sim_results2)
+sim_results$grp <- rep(c(1, 2), each = n_sims)
+sim_results$sim <- 1:n_sims
+```
+
+
+```{r, echo=FALSE}
+ggplot(sim_results) + 
+  geom_segment(aes(y = sim, yend = sim, x = lwr, xend = upr, color = covers), size = 1.3) + 
+  xlab("CI for mu") + 
+  facet_grid(cols = vars(grp))
+```
+
+---
+
+# Multiple Testing
+
+## Bonferroni Correction
+
+```{r}
+set.seed(12)
+n_sims <- 40
+n <- 25
+mu1 <- 0
+mu2 <- 0
+sigma <- 1
+K <- 2
+alpha <- 0.05
+```
+
+```{r, echo=TRUE}
+set.seed(12)
+bonf_sim_results1 <- bonferroni_simulation(n_sims, n, mu1, sigma, K, alpha)
+bonf_sim_results2 <- bonferroni_simulation(n_sims, n, mu2, sigma, K, alpha)
+set.seed(12)
+sim_results1 <- conf_int_simulation(n_sims, n, mu1, sigma, alpha)
+sim_results2 <- conf_int_simulation(n_sims, n, mu2, sigma, alpha)
+```
+
+
+---
+
+# Multiple Testing
+
+## Bonferroni Correction
+
+```{r, echo=FALSE}
+sim_results <- bind_rows(sim_results1, sim_results2)
+sim_results$grp <- rep(c(1, 2), each = n_sims)
+sim_results$sim <- 1:n_sims
+sim_results$lwr_bonf <- c(bonf_sim_results1$lwr, bonf_sim_results2$lwr)
+sim_results$upr_bonf <- c(bonf_sim_results1$upr, bonf_sim_results2$upr)
+```
+
+
+```{r, echo=FALSE}
+ggplot(sim_results) + 
+  geom_segment(aes(y = sim, yend = sim, x = lwr_bonf, xend = upr_bonf), color = "darkgreen", alpha = 0.75, size = 1.3) + 
+  geom_segment(aes(y = sim, yend = sim, x = lwr, xend = upr, color = covers), size = 1.3) + 
+  xlab("CI for mu") + 
+  facet_grid(cols = vars(grp))
+```
+
+
+---
+
+# Multiple Testing
+
+## Bonferroni Correction
+
+
+```{r}
+set.seed(123)
+n_sims <- 5000
+n <- 30
+mu1 <- 0
+mu2 <- 0
+mu3 <- 0
+mu4 <- 0
+sigma <- 1
+alpha <- 0.05
+K <- 4
+```
+
+```{r, echo=FALSE}
+sim_results1 <- bonferroni_simulation(n_sims, n, mu1, sigma, K, alpha)
+sim_results2 <- bonferroni_simulation(n_sims, n, mu2, sigma, K, alpha)
+sim_results3 <- bonferroni_simulation(n_sims, n, mu3, sigma, K, alpha)
+sim_results4 <- bonferroni_simulation(n_sims, n, mu4, sigma, K, alpha)
+combined_results <- data.frame(covers1 = sim_results1$covers, covers2 = sim_results2$covers, covers3 = sim_results3$covers, covers4 = sim_results4$covers)
+combined_results$covers_all <- combined_results$covers1 & combined_results$covers2 & combined_results$covers3 & combined_results$covers4
+```
+
+```{r, echo = FALSE}
+cat("Combined coverage probability: ", mean(combined_results$covers_all), "\n")
+cat("Group 1 coverage: ", mean(sim_results1$covers), "\n")
+cat("Group 2 coverage: ", mean(sim_results2$covers), "\n")
+cat("Group 3 coverage: ", mean(sim_results3$covers), "\n")
+cat("Group 4 coverage: ", mean(sim_results4$covers))
+```
