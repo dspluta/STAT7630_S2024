@@ -1,0 +1,81 @@
+\documentclass{article}
+
+\RequirePackage{homework}
+\usepackage{subcaption}
+
+% Set up the header and footer
+\pagestyle{fancy}
+\lhead{\textbf{\hmwkClass: \hmwkTitle}\\ \today} % Top center head
+\rhead{\hmwkAuthorName} % Top right header
+\lfoot{\lastxmark} % Bottom left footer
+\cfoot{} % Bottom center footer
+\rfoot{Page\ \thepage} % Bottom right footer3
+\renewcommand\headrulewidth{0.4pt} % Size of the header rule
+\renewcommand\footrulewidth{0.4pt} % Size of the footer rule
+
+%-------------------------------------------------------------------------------
+%	NAME AND CLASS SECTION
+%-------------------------------------------------------------------------------
+
+\newcommand{\hmwkTitle}{Homework \#6} % Assignment title
+\newcommand{\hmwkClass}{STAT 210} % Course/class
+\newcommand{\hmwkAuthorName}{Dustin Pluta} % Your name
+
+%-------------------------------------------------------------------------------
+%	TITLE PAGE
+%-------------------------------------------------------------------------------
+
+\title{
+\vspace{2in}
+\textmd{\textbf{\hmwkClass:\ \hmwkTitle}}
+\normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate}
+}
+
+%-------------------------------------------------------------------------------
+
+\begin{document}
+
+%-------------------------------------------------------------------------------
+%	PROBLEM 1
+%-------------------------------------------------------------------------------
+
+\begin{homeworkProblem}[Problem 1]
+We consider a population with true model $\bm Y = \bm{X \beta} + \bm{Z \gamma}
++ \bm \varepsilon$, for which we fit the model $\bm Y = \bm{X \beta} + \bm \varepsilon$.
+
+\subsection*{(a)}
+For the fitted model, the estimated regression coefficients are given by the 
+usual SLR formula:
+\[\bm{\hat\beta} = (\bm{X}^T\bm X)^{-1}\bm X^T\bm Y.\]
+
+From this, the expected value of the regression coefficient estimates is
+
+\begin{align*}
+  \E \bm{\hat\beta} &= \E\Big[(\bm{X}^T\bm X)^{-1}\bm X^T\bm Y\Big]\\
+  &= (\bm{X}^T\bm X)^{-1}\bm X^T\E\Big[\bm Y\Big]\\
+  &= (\bm{X}^T\bm X)^{-1}\bm X^T \E\Big[\bm{X\beta} + \bm{Z\gamma} + \varepsilon\Big]\\
+  &= (\bm{X}^T\bm X)^{-1}\bm X^T\Big(\bm{X\beta} + \bm{Z\gamma}\Big)\\
+  &= \bm \beta + (\bm{X}^T\bm X)^{-1}\bm X^T\bm{Z\gamma}
+\end{align*}
+
+\subsection*{(b)}
+
+\begin{align*}
+  \E \bm{\hat Y} &= \E \Big[\bm H \bm Y\Big] = \bm H \E \bm Y\\
+  &= \bm H(\bm{X \beta} + \bm{Z\gamma})\\
+  &= \bm X(\bm{X}^T\bm X)^{-1}\bm X^T \bm X + \bm{HZ\gamma}\\
+  &= \bm{X\beta} + \bm{HZ\gamma}
+\end{align*}
+
+\subsection*{(c)}
+For bias $\bm\delta = \E(\bm{\hat y}) - \E(\bm Y)$, the expected bias is
+
+\begin{align*}
+  \E \bm\delta &= \bm{X\beta} + \bm{HZ\gamma} - (\bm{X\beta} + \bm{Z\gamma})\\
+  &= \bm{HZ\gamma} - \bm{Z\gamma}\\
+  &= (\bm{H} - \bm{I})\bm{Z\gamma}
+\end{align*}  
+\end{homeworkProblem}
+
+\end{document}
+

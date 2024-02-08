@@ -1,0 +1,524 @@
+\documentclass{article}
+
+\RequirePackage{/home/dp/UCI/Coursework/homework}
+\usepackage{subcaption}
+
+% Set up the header and footer
+\pagestyle{fancy}
+\lhead{\textbf{\hmwkClass: \hmwkTitle}\\ \today} % Top center head
+\rhead{\hmwkAuthorName} % Top right header
+\lfoot{\lastxmark} % Bottom left footer
+\cfoot{} % Bottom center footer
+\rfoot{Page\ \thepage\ of\ \protect\pageref{LastPage}} % Bottom right footer3
+\renewcommand\headrulewidth{0.4pt} % Size of the header rule
+\renewcommand\footrulewidth{0.4pt} % Size of the footer rule
+
+%-------------------------------------------------------------------------------
+%	NAME AND CLASS SECTION
+%-------------------------------------------------------------------------------
+
+\newcommand{\hmwkTitle}{Homework \#6} % Assignment title
+\newcommand{\hmwkClass}{STAT 210} % Course/class
+\newcommand{\hmwkAuthorName}{Dustin Pluta} % Your name
+
+%-------------------------------------------------------------------------------
+%	TITLE PAGE
+%-------------------------------------------------------------------------------
+
+\title{
+\vspace{2in}
+\textmd{\textbf{\hmwkClass:\ \hmwkTitle}}
+\normalsize\vspace{0.1in}\small{Due\ on\ \hmwkDueDate}
+}
+
+%-------------------------------------------------------------------------------
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+<<init, include=FALSE>>=
+source("/home/dp/UCI/R/dp_helpers.R")
+library(knitr)
+library(xtable)
+@
+
+%-------------------------------------------------------------------------------
+%	PROBLEM 1
+%-------------------------------------------------------------------------------
+
+\begin{homeworkProblem}[Problem 1]
+We consider a population with true model $\bm Y = \bm{X \beta} + \bm{Z \gamma}
++ \bm \varepsilon$, for which we fit the model $\bm Y = \bm{X \beta} + \bm \varepsilon$.
+
+\subsection*{(a)}
+For the fitted model, the estimated regression coefficients are given by the 
+usual SLR formula:
+\[\bm{\hat\beta} = (\bm{X}^T\bm X)^{-1}\bm X^T\bm Y.\]
+
+From this, the expected value of the regression coefficient estimates is
+
+\begin{align*}
+  \E \bm{\hat\beta} &= \E\Big[(\bm{X}^T\bm X)^{-1}\bm X^T\bm Y\Big]\\
+  &= (\bm{X}^T\bm X)^{-1}\bm X^T\E\Big[\bm Y\Big]\\
+  &= (\bm{X}^T\bm X)^{-1}\bm X^T \E\Big[\bm{X\beta} + \bm{Z\gamma} + \varepsilon\Big]\\
+  &= (\bm{X}^T\bm X)^{-1}\bm X^T\Big(\bm{X\beta} + \bm{Z\gamma}\Big)\\
+  &= \bm \beta + (\bm{X}^T\bm X)^{-1}\bm X^T\bm{Z\gamma}
+\end{align*}
+
+\subsection*{(b)}
+
+\begin{align*}
+  \E \bm{\hat Y} &= \E \Big[\bm H \bm Y\Big] = \bm H \E \bm Y\\
+  &= \bm H(\bm{X \beta} + \bm{Z\gamma})\\
+  &= \bm X(\bm{X}^T\bm X)^{-1}\bm X^T \bm X + \bm{HZ\gamma}\\
+  &= \bm{X\beta} + \bm{HZ\gamma}
+\end{align*}
+
+\subsection*{(c)}
+For bias $\bm\delta = \E(\bm{\hat y}) - \E(\bm Y)$, the expected bias is
+
+\begin{align*}
+  \E \bm\delta &= \bm{X\beta} + \bm{HZ\gamma} - (\bm{X\beta} + \bm{Z\gamma})\\
+  &= \bm{HZ\gamma} - \bm{Z\gamma}\\
+  &= (\bm{H} - \bm{I})\bm{Z\gamma}
+\end{align*}  
+\end{homeworkProblem}
+%-------------------------------------------------------------------------------
+%	PROBLEM 2
+%-------------------------------------------------------------------------------
+\clearpage
+\begin{homeworkProblem}[Weisberg 8.2]
+<<stopping_data, include=FALSE>>=
+library(car)
+library(alr4)
+data(stopping)
+@   
+  
+\subsection*{(1)}
+Trying a few different transformations, we find that the square root 
+transformation on \texttt{Distance} linearizes the regression.  The 
+scatterplot of $\sqrt{\tt{Distance}}\sim\tt{Speed}$ is given in 
+Figure \ref{fig: p2_scatter}, which shows a clear linear relationship.  
+The residuals obtained from this model also confirm the linear relationship, with 
+the residuals randomly distributed about the zero line (Figure \ref{fig: p2_residuals}).  
+Comparing the $R^2$ value from this model to the model with untransformed $\tt{Speed}$, 
+we see an increase from $0.8777$ to $0.9251$, showing a significant improvement 
+after transformation.
+
+\begin{figure}[h]
+  \centering
+<<p2_sqrtfit, echo=FALSE>>=
+fit <- lm(sqrt(Distance) ~ Speed, data=stopping)
+plot(stopping$Speed, sqrt(stopping$Distance))
+@ 
+\caption{Plot of data with square root transformed response.}
+\label{fig: p2_scatter}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+<<p2_resids, echo=FALSE>>=
+plot(fitted(fit), residuals(fit), main="Residuals vs Fitted with Square Root Transformation")
+abline(h=0)
+@ 
+\caption{Plot of residuals against fitted values with $\sqrt{\tt{Distance}}$ as response.}
+\label{fig: p2_residuals}
+\end{figure}
+  
+
+<<p2_r.squared>>=
+fit <- lm(sqrt(Distance) ~ Speed, data=stopping)
+summary(fit)$r.squared
+
+raw.fit <- lm(Distance ~ Speed, data=stopping)
+summary(raw.fit)$r.squared
+@ 
+
+\clearpage
+\subsection*{(2)}
+The output below shows the results of fitting the models 
+
+\[\tt{Distance} \sim \tt{Speed}^{\lambda},\]
+
+for $\lambda = -1, 0, 1$.  The $R^2$ of the models are
+
+\begin{align*}
+  \lambda = -1: R^2 = 0.4856\\
+  \lambda = 0: R^2 = 0.7227\\
+  \lambda = 1: R^2 = 0.8777.
+\end{align*}
+
+We see that the transformations for $\lambda = -1, 0$ are detrimental to 
+explaining $\tt{Distance}$, with relatively low $R^2$ compared to the 
+untransformed data with $\lambda = 1$, which has a decent $R^2$ of $0.8777$.  
+However, examining the residuals vs fitted plots for these transformations 
+shows that there is a clear quadratic pattern in the residuals, indicating
+that none of these transformations are appropriate here.
+
+<<p2_2>>=
+par(mfrow=c(3,2))
+
+# lambda=-1
+stopping$Speed.inv <- 1/stopping$Speed
+fit <- lm(Distance ~ Speed.inv, data=stopping)
+plot(fitted(fit), residuals(fit), main="Residuals vs Fitted for lambda=-1")
+plot(stopping$Speed, stopping$Distance)
+lines(stopping$Speed, fitted(fit))
+summary(fit)$r.squared
+
+# lambda=0
+fit <- lm(Distance ~ log(Speed), data=stopping)
+plot(fitted(fit), residuals(fit), main="Residuals vs Fitted for lambda=0")
+plot(stopping$Speed, stopping$Distance)
+lines(stopping$Speed, fitted(fit))
+summary(fit)$r.squared
+
+# lambda=1
+fit <- lm(Distance ~ Speed, data=stopping)
+plot(fitted(fit), residuals(fit), main="Residuals vs Fitted for lambda=1")
+plot(stopping$Speed, stopping$Distance)
+lines(stopping$Speed, fitted(fit))
+summary(fit)$r.squared
+@ 
+
+\subsection*{(3)}
+Now choosing $\lambda = 2$, the $R^2$ is 0.9136.  The residuals vs fitted 
+plot given below shows much better behavior in the residuals, with a fairly 
+random pattern around the zero line, although there does seem to be a fan 
+pattern indicating nonconstant variance.  The fitted line shows a good fit 
+of the data, suggesting that the quadratic transformation is best of the 
+ones considered.
+
+\clearpage
+<<p2_3>>=
+# lambda=2
+par(mfrow=c(1,2))
+stopping$Speed.sq <- stopping$Speed^2
+fit <- lm(Distance ~ Speed.sq, data=stopping)
+plot(fitted(fit), residuals(fit), main="Residuals vs Fitted for lambda=2")
+plot(stopping$Speed, stopping$Distance)
+lines(stopping$Speed, fitted(fit))
+summary(fit)$r.squared
+@
+\end{homeworkProblem}
+
+\clearpage
+%-------------------------------------------------------------------------------
+%	PROBLEM 3
+%-------------------------------------------------------------------------------
+
+\begin{homeworkProblem}[Problem 3]
+\subsection*{(a)}
+Let $x_c = \tt{Speed} - mean(\tt{Speed})$, and $y = \tt{Distance}$.  We 
+fit the model $y = \beta_0 + \beta_1 x_c + \beta_2 x_c^2$, which yields the 
+fitted line shown in Figure \ref{fig: p3_plot}.
+
+<<p3_fit>>=
+stopping$Speed.c <- stopping$Speed - mean(stopping$Speed)
+stopping$Speed.c.sq <- stopping$Speed.c^2
+fit <- lm(Distance ~ Speed.c + Speed.c.sq, data=stopping)
+@ 
+
+\subsection*{(b)}
+The estimate of the intercept is $\hat \beta_0 = 32.917$.  In context, this 
+estimates the stopping distance at $32.917 ft$ for the average speed in the data set, $\bar x = 18.919 mph$.
+
+\subsection*{(c)}
+The instantaneous rate of change for the fitted regression curve is 
+$\hat \beta_1 + 2 \hat \beta_2 x_c$.  The value $\hat \beta_1$ then reprsents 
+the approximate change in stopping distance for a small increase in speed 
+when the speed is $\bar x$ (which corresponds to $x_c = 0$).
+  \clearpage
+\begin{figure}[h]
+  \centering
+<<p3_plots, echo=FALSE>>=
+plot(stopping$Speed.c, stopping$Distance, main="Scatterplot and Regression Fit for Centered Quadratic Model")
+lines(stopping$Speed.c, fitted(fit))
+@
+\caption{Plot of the data and fitted curve from the quadratic model.}
+\label{fig: p3_plot}
+\end{figure}
+
+\end{homeworkProblem}
+
+
+%-------------------------------------------------------------------------------
+%	PROBLEM 5
+%-------------------------------------------------------------------------------
+\clearpage
+\begin{homeworkProblem}[Problem 5]
+<<p5_init, include=FALSE>>=
+library(car)
+library(leaps)
+library(HH)
+library(xtable)
+
+CDI = read.table("http://www.ics.uci.edu/~staceyah/210/data/CDI.txt", header=TRUE)
+@ 
+
+\subsection*{(a)}
+The correlation matrix is provided in Table \ref{tab: p5_a_cor}.  The majority 
+of correlations are small, but there are a few variables that are strongly correlated.
+The predictor \texttt{Population} in particular is strongly correlated with 
+\texttt{Crimes}, \texttt{Beds}, \texttt{TotalIncome}, and the response \texttt{Physicians}.  
+As expected, the other pairs of predictors from this set also show high correlation, 
+but it seems likely that the population size is the driving factor among these variables,
+although a causal relationship cannot be determined from the data alone.  We 
+also see some moderate correlation between \texttt{HS} and \texttt{Bachelor}, 
+and negative correlation between these and \texttt{Poverty} and \texttt{Unemployment}.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrrrrrrrrr}
+  \hline
+ & Area & Pop & 18to34 & 65plus & Phys. & Beds & Crimes & HS & Bach. & Pov. & Unemp. & Inc. & TotInc. \\ 
+  \hline
+Area & 1.00 & 0.17 & -0.05 & 0.01 & 0.08 & 0.07 & 0.13 & -0.10 & -0.14 & 0.17 & 0.20 & -0.19 & 0.13 \\ 
+  Pop & 0.17 & 1.00 & 0.08 & -0.03 & 0.94 & 0.92 & 0.89 & -0.02 & 0.15 & 0.04 & 0.01 & 0.24 & 0.99 \\ 
+  18to34 & -0.05 & 0.08 & 1.00 & -0.62 & 0.12 & 0.07 & 0.09 & 0.25 & 0.46 & 0.03 & -0.28 & -0.03 & 0.07 \\ 
+  65plus & 0.01 & -0.03 & -0.62 & 1.00 & -0.00 & 0.05 & -0.04 & -0.27 & -0.34 & 0.01 & 0.24 & 0.02 & -0.02 \\ 
+  Phys. & 0.08 & 0.94 & 0.12 & -0.00 & 1.00 & 0.95 & 0.82 & -0.00 & 0.24 & 0.06 & -0.05 & 0.32 & 0.95 \\ 
+  Beds & 0.07 & 0.92 & 0.07 & 0.05 & 0.95 & 1.00 & 0.86 & -0.11 & 0.10 & 0.17 & 0.01 & 0.19 & 0.90 \\ 
+  Crimes & 0.13 & 0.89 & 0.09 & -0.04 & 0.82 & 0.86 & 1.00 & -0.11 & 0.08 & 0.16 & 0.04 & 0.12 & 0.84 \\ 
+  HS & -0.10 & -0.02 & 0.25 & -0.27 & -0.00 & -0.11 & -0.11 & 1.00 & 0.71 & -0.69 & -0.59 & 0.52 & 0.04 \\ 
+  Bach. & -0.14 & 0.15 & 0.46 & -0.34 & 0.24 & 0.10 & 0.08 & 0.71 & 1.00 & -0.41 & -0.54 & 0.70 & 0.22 \\ 
+  Poverty & 0.17 & 0.04 & 0.03 & 0.01 & 0.06 & 0.17 & 0.16 & -0.69 & -0.41 & 1.00 & 0.44 & -0.60 & -0.04 \\ 
+  Unemp. & 0.20 & 0.01 & -0.28 & 0.24 & -0.05 & 0.01 & 0.04 & -0.59 & -0.54 & 0.44 & 1.00 & -0.32 & -0.03 \\ 
+  Income & -0.19 & 0.24 & -0.03 & 0.02 & 0.32 & 0.19 & 0.12 & 0.52 & 0.70 & -0.60 & -0.32 & 1.00 & 0.35 \\ 
+  TotInc. & 0.13 & 0.99 & 0.07 & -0.02 & 0.95 & 0.90 & 0.84 & 0.04 & 0.22 & -0.04 & -0.03 & 0.35 & 1.00 \\ 
+   \hline
+\end{tabular}
+\caption{Correlation matrix for CDI data.} 
+\label{tab: p5_a_cor}
+\end{table}
+
+\clearpage
+
+\subsection*{(b)}
+We provide boxplots of the response $\tt{Physicians}$ stratified by $\tt{Region}$, 
+a QQ-normal plot of $\tt{Physicians}$ and a scatterplot matrix of some potential 
+predictors of interest and the response.\\
+
+The boxplot of $\tt{Physicians}$ shows strong right-skewing for the response 
+across all regions.  This may indicate the need for a transformation to satisfy 
+model assumptions of normality.\\
+
+The QQ-plot confirms the indication of the boxplots, showing that $\tt{Physicians}$ 
+is strongly right-skewed and nonnormal.\\
+
+The scatterplot matrix illustrates the correlations of many of the predictors 
+with $\tt{Physicians}$, most notably $\tt{Beds, Crimes, Pop}$ and $\tt{TotIncome}$.  
+Based on this, we expect some or all of these predictors to be present in the 
+chosen model.
+
+
+<<p5_b_plots, results="asis", echo=FALSE>>=
+par(mfrow=c(1,2))
+boxplot(CDI$Physicians~CDI$Region, main="Boxplot of Physicians by Region")
+qqnorm(CDI$Physicians, main="Normal QQ-Plot for Physicians")
+qqline(CDI$Physicians)
+@ 
+<<p5_b_scatterplotmatrix, results="asis", echo=FALSE>>=
+scatterplotMatrix(CDI[,c(5, 7, 8, 9, 10, 11, 12, 13, 14, 16)], main="Relationships 
+of quantitative predictors of interest with the response Physicians")
+@ 
+
+
+\subsection*{(c)}
+Considering the predictors in the data set, the predictors likely to have an 
+effect on the number of physicians in a county are those most related to affluence 
+and population in a county.  These include: population, per capita income, 
+total personal income, percent high school graduates and bachelor's degrees.  
+Other predictors likely to be related to physicians in a county are number of 
+hospital beds and percent of the population over 65, since these obviously 
+correlate with need for physicians.  We expect an inverse relationship 
+with the level of crimes, unemployment, and percent population aged 18 to 34.\\
+
+Possible interactions are $\tt{Crimes}-\tt{Income}$; $\tt{Income}-\tt{Population}$; 
+$\tt{Crimes}-\tt{Bachelor}$.  These are the variables that may have different 
+effects on the number of physicians based on the level of the associated variable.
+
+\subsection*{(d)}
+Using the \texttt{regsubsets()} function to find the best subset of predictors 
+at each number of predictors, the maximum adjusted $R^2_{adj}$ is 0.961, which 
+is achieved for 8 through 12 predictors.  The output from the summary is 
+given in Figure \ref{tab: p5_e_summary}. Since the $R^2_{adj}$ values are practically 
+equivalent for 8 or more predictors, we choose the model with 8 predictors for parsimony.
+The best model for 8 predictors is
+
+\[\tt{Physicians} \sim \tt{Pop} + \tt{Beds} + \tt{Crimes} + \tt{HS} 
++ \tt{Bach} + \tt{Income} + \tt{TotIncome} + \tt{Region}.\]
+
+<<p5_e_fit, include=FALSE>>=
+best <- regsubsets(Physicians ~ . - ID - State - County, data=CDI, nvmax=12)
+@ 
+
+<<p5_e_summary, echo=FALSE, results="asis">>=
+xtable(summaryHH(best)[,-4], caption="Summary of regsubsets() applied to the CDI data.",
+       label="tab: p5_e_summary", digits=3)
+@ 
+
+\subsection*{(e)}
+Using Mallow's $C_p$ as the selection criterion, we look for the model with 
+$C_p$ closest to $p$.  For the $CDI$ data, we again choose the model with 8 
+predictors selected in (d), which has $C_p = 6.49$.
+
+\subsection*{(f)}
+Using $\tt{stepAIC()}$ in \texttt{R} to perform stepwise (backward and forward)
+selection starting from the full model yields the final model
+
+\[\tt{Physicians} \sim \tt{Pop} + \tt{Beds} + \tt{Crimes} + \tt{HS} 
++ \tt{Bach} + \tt{Income} + \tt{TotIncome} + \tt{Region},\]
+
+which is the same model as selected above.  The AIC for this model is 5173.6.
+
+\subsection*{(g)}
+Testing the following interactions in succession using the likelihood ratio test, 
+we find that the interation terms $\tt{Crimes:Income}, \tt{Crimes:Bachelor}, \tt{Crimes:TotIncome}$ and
+$\tt{Beds:Region}$
+are highly significant with $P < 10^{-6}$ for all LRTs.  The interaction 
+$\tt{Income:Pop}$ was not found to be significant, so we exclude it from the model.\\
+
+The model we adopt from these tests is 
+
+\[\tt{Physicians} \sim \tt{Pop} + \tt{Beds} + \tt{Crimes} + \tt{HS} 
++ \tt{Bach} + \tt{Income} + \tt{TotIncome} + \tt{Region} + \tt{Crimes:Income}
++ \tt{Crimes:Bachelor} + \tt{Crimes:TotIncome} + \tt{Beds:Region}.\]
+
+This model has $R^2 = 0.9715, R^2_{adj} = 0.97$, from which we conclude that the model is a 
+very good fit, with the predictors explaining 97.15\% of the variation in 
+the number of physicians.
+\clearpage
+<<p5_g>>=
+fit.int1 <- lm(Physicians ~ Pop + Beds + Crimes + HS + Bachelor + Income +
+               TotIncome + Region + Crimes:Income, data=CDI)
+anova(base.fit, fit.int1)[2,"Pr(>F)"]
+
+fit.int2 <- lm(Physicians ~ Pop + Beds + Crimes + HS + Bachelor + Income +
+               TotIncome + Region + Crimes:Income + Income:Pop, data=CDI)
+anova(fit.int1, fit.int2)[2,"Pr(>F)"]
+
+fit.int3 <- lm(Physicians ~ Pop + Beds + Crimes + HS + Bachelor + Income +
+               TotIncome + Region + Crimes:Income + Crimes:Bachelor, data=CDI)
+anova(fit.int1, fit.int3)[2,"Pr(>F)"]
+
+fit.int4 <-  lm(Physicians ~ Pop + Beds + Crimes + HS + Bachelor + Income +
+               TotIncome + Region + Crimes:Income + Crimes:Bachelor +
+                Crimes:TotIncome, data=CDI)
+anova(fit.int3, fit.int4)[2,"Pr(>F)"]
+
+fit.int5 <-  lm(Physicians ~ Pop + Beds + Crimes + HS + Bachelor + Income +
+               TotIncome + Region + Crimes:Income + Crimes:Bachelor +
+                Crimes:TotIncome + Beds:Region, data=CDI)
+anova(fit.int4, fit.int5)[2,"Pr(>F)"]
+@ 
+
+\subsection*{(h)}
+From the diagnostic plots given in Figure \ref{fig: p5_h_plots}, the linear 
+regression assumptions do not appear to met.  In particular, the QQ-plot 
+shows significant deviation from normality, and the residuals vs fitted plot shows 
+an extreme right-skewing in the distribution of residuals.  These violations are 
+anticipated by the exploratory plots in (b), which shows extreme right-skewing 
+in the response $\tt{Physicians}$.  There are also a number of outliers present 
+in the Cook's Distance plot and standardized residuals plot.  To alleviate these 
+violations, we attempt a log transformation of the response.\\
+
+With the square-root transformation, the response $\sqrt{\tt{Physicians}}$ is symmetric 
+and much more closely normally distributed.  A comparison with the untransformed 
+response is given in Figure \ref{fig: p5_h_boxplots}.  The diagnostic plots with 
+the transformed response (Figure \ref{fig: p5_h_diagnostics}) show better behavior 
+in the residuals, although there is still significant right-skewing and some violation 
+of normality.  The linear regression model is fairly robust to violation of normality, 
+so the model results may be acceptable under this transformation.  The $R^2$ for 
+this model is $R^2 = 0.946$, which is lower from the untransformed model, but we 
+may have more assurance in the validity of the model results since the model 
+assumptions are more closely satisfied.  We note that even after transformation, there 
+are a few outliers identified in the diagnostic plots, most significantly observations 
+1, 3, 6, 48, and 418.  Further analysis could look more closely at the effect of these 
+outliers on the fitted model.\\
+
+The log transformation was also tried for the reponse, which produced even better behavior in the 
+residuals, but the $R^2$ of the resulting model was reduced to $R^2 = 0.85$, which 
+is a large drop compared to the square root transformation.  Due to the significantly 
+greater $R^2$, we adopt the square root transformation despite the minor violations 
+in the model assumptions.\\
+
+Taking into consideration all of the above analysis, the best model is 
+
+\begin{align*}
+  \sqrt{\tt{Physicians}} \sim &\tt{Pop} + \tt{Beds} + \tt{Crimes} + \tt{HS} 
++ \tt{Bach} + \tt{Income} + \tt{TotIncome}\\ &+ \tt{Region} + \tt{Crimes:Income}
++ \tt{Crimes:Bachelor} + \tt{Crimes:TotIncome} + \tt{Beds:Region}.
+\end{align*}
+
+However, we may wish to report this model with untransformed response since 
+the interpretation is much clearer, and the $R^2$ is higher, including the 
+caveat that the model assumptions may be violated.  This model largely corroborates our intuition about what predictors will 
+be significantly related to the number of physicians in a county.  We see that 
+population, education levels, region, and crime levels are the most important 
+predictors in the number of physicians in a county. Model summary results 
+are given in Table \ref{tab: p5_h_summary}.  A few things of note from the 
+summary of the fitted model:
+\begin{itemize}
+  \item The predictors with the largest effects are $\tt{HS, Bachelor, RegionNE,
+      RegionW}$.
+  \item Even though $\tt{Crimes:Income}, \tt{Crimes:Bachelor}$ and $\tt{Crimes:TotIncome}$ 
+    were found to be significant by the LRT, the effect estimates of these interaction 
+    terms is practically 0.
+  \item The $\tt{Beds:Region}$ interaction terms have small but statistically 
+    significant effects.
+  \item $\tt{RegionW}$ has the largest effect estimate, perhaps due to the population 
+    density in California, but the effect is not found to be statistically significant 
+    when adjusting for the other terms in the model.  This may be because the 
+    effect is mainly accounted for by the $\tt{Beds:Region}$ interaction term.
+  \item Positively correlated predictors with moderate to large effects are: $\tt{RegionW, Bachelor, Beds}$
+    and $\tt{Beds:RegionW}$.
+  \item Negatively correlated predictors with moderate to large effects are:
+    $\tt{HS, RegionNE}$.
+\end{itemize}
+
+
+\clearpage
+\begin{figure}[h]
+  \centering
+<<p5_h, echo=FALSE, warning=FALSE>>=
+par(mfrow=c(2,2))
+plot(fit.int5)
+@ 
+\caption{Diagnostic plots from selected model fit, no transformation on the response.}
+\label{fig: p5_h_plots}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+<<p5_h_boxplots, echo=FALSE>>=
+par(mfrow=c(1,2))
+boxplot(CDI$Physicians, main="Boxplot of Physicians")
+boxplot(sqrt(CDI$Physicians), main="Boxplot of log(Physicians)")
+@
+\caption{Boxplots comparing the response $\tt{Physicians}$ and $\sqrt{\tt{Physicians}}$.}
+\label{fig: p5_h_boxplots}
+\end{figure}
+
+\begin{figure}[h]
+  \centering
+<<p5_h_diagnostics, echo=FALSE, warning=FALSE>>=
+fit.trans <- lm(sqrt(Physicians) ~ . - ID - State - County + Crimes:Income + Crimes:Bachelor
+                + Crimes:TotIncome + Beds:Region, data=CDI)
+par(mfrow=c(2,2))
+plot(fit.trans)
+@ 
+\caption{Diagnostic plots from the model with the selected predictors and 
+  square root transformation on the response.}
+\label{fig: p5_h_diagnostics}
+\end{figure}
+
+<<p5_h_summary, echo=FALSE, results="asis">>=
+xtable(summary(fit.int5), caption="Summary of final model fit with untransformed response.",
+       label="tab: p5_h_summary")
+@ 
+
+
+\end{homeworkProblem}
+
+\end{document}
+

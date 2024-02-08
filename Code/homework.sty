@@ -1,0 +1,227 @@
+\ProvidesPackage{homework}
+\NeedsTeXFormat{LaTeX2e}
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{empheq}
+\usepackage{fancyhdr} % Required for custom headers
+\usepackage{lastpage} % Required to determine the last page for the footer
+\usepackage{extramarks} % Required for headers and footers
+\usepackage{courier} % Required for the courier font
+\usepackage{bm}
+\usepackage{amsfonts,amssymb,mathrsfs}
+\usepackage{geometry}
+\usepackage{titlesec}
+\usepackage{subcaption}
+\usepackage{framed}
+\usepackage{fancyvrb}
+\usepackage{float}
+
+
+\geometry{letterpaper, twoside}
+\geometry{ignoreheadfoot, ignoremp}
+\geometry{margin=0.5in}
+\geometry{headheight=2\baselineskip}
+\geometry{headsep=0in}
+\allowdisplaybreaks[1]
+
+% Margins
+\topmargin=-0.45in
+\evensidemargin=0in
+\oddsidemargin=0in
+\textwidth=6.5in
+\textheight=9.0in
+\headsep=0.25in
+
+\linespread{1.1} % Line spacing
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+
+\fancyhf{}
+\cfoot{\thepage}
+
+\newcommand{\duedate}{\today}
+\newcommand{\classtitle}{%
+	\setlength{\fboxsep}{10pt}%
+	\fbox{\fontsize{14}{11}\selectfont\textbf{}}}
+
+\newcommand{\@postnumber}[1]{#1\hspace{1ex}\titlerule}
+
+\titleformat{\section}
+ {\sffamily\Large}{}{0em}{\@postnumber}
+\titleformat{\subsection}[leftmargin]{\subsectionformat\filleft}
+ {}{0em}{}
+\newcommand{\subsectionformat}{\normalfont\sffamily\large}
+\titlespacing*{\section}
+ {0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+\titlespacing*{\subsection}
+ {4pc}{1.5ex plus .1ex minus .2ex}{1pc}
+
+\fancypagestyle{empty}{%
+  \fancyhf{}
+  \fancyhead[L]{\classtitle}
+  \fancyhead[R]{Dustin Pluta\\ ID: 94166034}
+}
+
+
+% Command "alignedbox{}{}" for a box within an align environment
+% Source: http://www.latex-community.org/forum/viewtopic.php?f=46&t=8144
+\newlength\dlf  % Define a new measure, dlf
+\newcommand\abox[2]{
+% Argument #1 = before & if there were no box (lhs)
+% Argument #2 = after & if there were no box (rhs)
+&  % Alignment sign of the line
+{
+\settowidth\dlf{$\displaystyle #1$}  
+    % The width of \dlf is the width of the lhs, with a displaystyle font
+\addtolength\dlf{\fboxsep+\fboxrule}  
+    % Add to it the distance to the box, and the width of the line of the box
+\hspace{-\dlf}  
+    % Move everything dlf units to the left, so that & #1 #2 is aligned under #1 & #2
+\boxed{#1 #2}
+    % Put a box around lhs and rhs
+}
+}
+
+
+%% notation
+\newcommand{\abs}[1]{\lvert#1\rvert}
+\newcommand{\gen}[1]{\langle#1\rangle}
+\newcommand{\ceil}[1]{\lceil#1\rceil}
+\newcommand{\clos}[1]{\overline{#1}}
+\newcommand{\floor}[1]{\lfloor#1\rfloor}
+\newcommand{\norm}[1]{\lVert#1\rVert}
+ \newcommand{\inorm}[1]{\lVert#1\rVert_\infty}
+ \newcommand{\onorm}[1]{\lVert#1\rVert_1}
+ \newcommand{\tnorm}[1]{\lVert#1\rVert_2}
+\newcommand{\ns}{\unlhd}
+\newcommand{\order}[1]{\lvert#1\rvert}
+\newcommand{\pfrac}[3][]{\frac{\partial^{#1}#2}{\partial#3^{#1}}}
+\newcommand{\set}[1]{\{#1\}}
+\newcommand\ind{\stackrel{\mathclap{\scriptsize\mbox{\textit{ind}}}}{\sim}}
+\newcommand\iid{\stackrel{\mathclap{\scriptsize\mbox{\textit{iid}}}}{\sim}}
+\newcommand\toP{\overset{P}{\to}}
+\newcommand\toD{\overset{D}{\to}}
+\newcommand\toas{\overset{a.s.}{\to}}
+\newcommand\sumin{\sum_{i = 1}^n}
+
+\DeclareMathOperator{\aut}{Aut}
+\DeclareMathOperator{\gal}{Gal}
+\DeclareMathOperator{\gl}{GL}
+\DeclareMathOperator{\tr}{tr}
+
+%easy courier
+\newcommand{\mt}[1]{\texttt{#1}}
+
+
+%% sets
+\newcommand{\A}{\mathbb{A}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Var}{\mathbb{V}ar}
+\newcommand{\Cov}{\mathbb{C}ov}
+\newcommand{\Corr}{\mathbb{C}orr}
+\newcommand{\PP}{\mathbb{P}}
+
+\newcommand{\bC}{\mathbf{C}}
+\newcommand{\bD}{\mathbf{D}}
+\newcommand{\bX}{\mathbf{X}}
+\newcommand{\bY}{\mathbf{Y}}
+\newcommand{\bP}{\mathbf{P}}
+\newcommand{\bE}{\mathbf{E}}
+
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\cC}{\mathcal{C}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cI}{\mathcal{I}}
+\newcommand{\cN}{\mathcal{N}}
+\newcommand{\cO}{\mathcal{O}}
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\cR}{\mathcal{R}}
+\newcommand{\cS}{\mathcal{S}}
+\newcommand{\cT}{\mathcal{T}}
+\newcommand{\cU}{\mathcal{U}}
+\newcommand{\cZ}{\mathcal{Z}}
+
+\newcommand{\sA}{\mathscr{A}}
+\newcommand{\sC}{\mathscr{C}}
+\newcommand{\sD}{\mathscr{D}}
+\newcommand{\sF}{\mathscr{F}}
+\newcommand{\sG}{\mathscr{G}}
+\newcommand{\sH}{\mathscr{H}}
+\newcommand{\sI}{\mathscr{I}}
+\newcommand{\sL}{\mathscr{L}}
+\newcommand{\sO}{\mathscr{O}}
+\newcommand{\sR}{\mathscr{R}}
+\newcommand{\sS}{\mathscr{S}}
+\newcommand{\sT}{\mathscr{T}}
+
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\logit}{\text{logit}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Programming/Coding Assignment LaTeX Template
+% This template has been downloaded from:
+% http://www.latextemplates.com
+% Original author:
+% Ted Pavlic (http://www.tedpavlic.com)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%-----------------------------------------------------------------------------
+%	CODE INCLUSION CONFIGURATION
+%-----------------------------------------------------------------------------
+%----------------------------------------------------------------------------------------
+%	DOCUMENT STRUCTURE COMMANDS
+%	Skip this unless you know what you're doing
+%----------------------------------------------------------------------------------------
+
+% Header and footer for when a page split occurs within a problem environment
+\newcommand{\enterProblemHeader}[1]{
+\nobreak\extramarks{#1}{#1 continued on next page\ldots}\nobreak
+\nobreak\extramarks{#1 (continued)}{#1 continued on next page\ldots}\nobreak
+}
+
+% Header and footer for when a page split occurs between problem environments
+\newcommand{\exitProblemHeader}[1]{
+\nobreak\extramarks{#1 (continued)}{#1 continued on next page\ldots}\nobreak
+\nobreak\extramarks{#1}{}\nobreak
+}
+
+\setcounter{secnumdepth}{0} % Removes default section numbers
+\newcounter{homeworkProblemCounter} % Creates a counter to keep track of the number of problems
+
+\newcommand{\homeworkProblemName}{}
+\newenvironment{homeworkProblem}[1][Problem \arabic{homeworkProblemCounter}]{ % Makes a new environment called homeworkProblem which takes 1 argument (custom name) but the default is "Problem #"
+\stepcounter{homeworkProblemCounter} % Increase counter for number of problems
+\renewcommand{\homeworkProblemName}{#1} % Assign \homeworkProblemName the name of the problem
+\section{\homeworkProblemName} % Make a section in the document with the custom problem count
+\enterProblemHeader{\homeworkProblemName} % Header and footer within the environment
+}{
+\exitProblemHeader{\homeworkProblemName} % Header and footer after the environment
+}
+
+\newcommand{\problemAnswer}[1]{ % Defines the problem answer command with the content as the only argument
+\noindent #1 
+}
+
+\newcommand{\homeworkSectionName}{}
+\newenvironment{homeworkSection}[1]{ % New environment for sections within homework problems, takes 1 argument - the name of the section
+\renewcommand{\homeworkSectionName}{#1} % Assign \homeworkSectionName to the name of the section from the environment argument
+\subsection{\homeworkSectionName} % Make a subsection with the custom name of the subsection
+\enterProblemHeader{\homeworkProblemName\ [\homeworkSectionName]} % Header and footer within the environment
+}{
+\enterProblemHeader{\homeworkProblemName} % Header and footer after the environment
+}
+
