@@ -1,0 +1,68 @@
+---
+title: "Simple_Linear_Regression_Walkthrough"
+author: "D. Pluta"
+date: "2024-02-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## General Problem Setting
+
+We are given a set of $n$ observations $\{(x_i, y_i)\}_{i = 1}^n$, 
+with response $y_i \in \mathbb{R}$ and covariate $x_i$ (the data type 
+for the covariate may be numeric or categorical).
+
+Typically, the analysis goal is to determine whether the covariate is significantly 
+associated with the reponse as specified by some systematic functional relationship.  It 
+is assumed that the observed response values are contaminated by the presence of 
+random noise.
+
+## Model Statement
+
+$$\begin{align}
+y_i &= \beta_0 + \beta_1 x_i + \varepsilon_i\\
+\varepsilon &\sim \mathcal{N}(0, \sigma^2)
+\end{align}$$
+
+## Model Assumptions
+
+1. Linear relationship of $x$ with $y$.
+
+2. Independence of error terms.
+
+3. Normally distributed errors.
+
+4. Equal variance of the error distribution over the range of observed covariate values.
+
+## Data Example
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(readr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+dat <- read_csv("~/Downloads/cancer_reg.csv")
+colnames(dat)
+```
+
+```{r}
+dat %>% select(TARGET_deathRate, medIncome) %>% 
+  head()
+```
+
+
+```{r}
+fit <- lm(TARGET_deathRate ~ medIncome, data = dat)
+summary(fit)
+```
+
+
+
+
+
