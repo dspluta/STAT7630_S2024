@@ -47,7 +47,7 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r}
-dat <- read_csv("~/Downloads/cancer_reg.csv")
+dat_raw <- read_csv("C://Users//faculty//Downloads//cancer_reg.csv")
 colnames(dat)
 ```
 
@@ -61,8 +61,108 @@ dat %>% select(TARGET_deathRate, medIncome) %>%
 fit <- lm(TARGET_deathRate ~ medIncome, data = dat)
 summary(fit)
 ```
+```{r}
+dat <- dat %>% transmute(TARGET_deathRate = TARGET_deathRate,
+                         medIncome10k = medIncome / 10000)
+dat$medIncome10k <- dat$medIncome10k - mean(dat$medIncome10k)
+```
+```{r}
+fit <- lm(TARGET_deathRate ~ medIncome10k, data = dat)
+summary(fit)
+```
+```{r}
+ggplot(dat) + 
+  geom_histogram(aes(x = medIncome10k))
+```
+```{r}
+ggplot(dat) + 
+  geom_histogram(aes(x = TARGET_deathRate))
+```
 
+```{r}
+ggplot(dat) + 
+  geom_point(aes(x = medIncome10k, y = TARGET_deathRate))
+```
 
+```{r}
+ggplot(dat) +
+  geom_point(aes(x = medIncome10k, y = TARGET_deathRate), alpha = 0.5, pch = 21, color = "black", fill = "darkgreen") + 
+  geom_smooth(aes(x = medIncome10k, y = TARGET_deathRate), method = "lm") + 
+  geom_abline(aes(slope = -4.9, intercept = 178.7), color = 'red')
+```
+
+```{r}
+dat <- dat_raw
+```
+
+## Multiple Linear Regression Analysis
+
+Include covariates: gender, race, age
+Response: death rate
+
+```{r}
+colnames(dat)
+dat <- dat_raw %>% select(medIncome, MedianAge, PctWhite, PctBlack, PctAsian, PctOtherRace, MedianAgeMale, MedianAgeFemale, TARGET_deathRate)
+```
+
+```{r}
+head(dat)
+dat$medIncome <- (dat$medIncome  - mean(dat$medIncome)) /10000
+```
+
+```{r}
+ggplot(dat) + 
+  geom_point(aes(x = MedianAge, y = TARGET_deathRate))
+```
+
+```{r}
+summary(dat$MedianAge)
+sum(dat$MedianAge > 100)
+```
+```{r}
+ggplot(dat %>% filter(MedianAge > 100)) + 
+  geom_point(aes(x = MedianAge, y = TARGET_deathRate))
+```
+
+```{r}
+cor(dat$MedianAge[dat$MedianAge > 100], dat$medIncome[dat$MedianAge > 100])
+cor(dat$MedianAge, dat$medIncome)
+```
+```{r}
+dat <- dat %>% filter(MedianAge < 100)
+```
+
+```{r}
+fit <- lm(TARGET_deathRate ~ medIncome + MedianAge, data = dat)
+summary(fit)
+```
+```{r}
+par(mfrow = c(1, 1))
+plot(fit)
+```
+```{r}
+resids <- fit$residuals
+plot(dat$MedianAge, resids)
+plot(dat$medIncome, resids)
+```
+
+```{r}
+dat
+X <- as.matrix(dat[, 1:8])
+X <- cbind(rep(1, nrow(X)), X)
+Y <- dat$TARGET_deathRate
+```
+
+```{r}
+fit <- lm(TARGET_deathRate ~ ., data = dat)
+summary(fit)
+```
+```{r}
+covariance = t(X) %*% X
+XTXinv = solve(t(X) %*% X)
+
+beta_hat = XTXinv %*% t(X) %*% Y
+```
 
 
 
