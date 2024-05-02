@@ -1,0 +1,695 @@
+---
+output: bookdown::pdf_document2
+title: "Longitudinal Effects of Beta Carotene Supplementation on Serum Levels"
+author: Dustin Pluta
+affiliation: AU
+bibliography: ["bib.bib"]
+biblio-style: "apalike"
+---
+
+```{r setup, include = FALSE}
+source("SETUP.R")
+knitr::opts_chunk$set(warning = FALSE, message = FALSE, echo = FALSE,
+                      cache = TRUE, fig.width = 5.5, 
+                      out.width = "\\textwidth",
+                      fig.align = "center",
+                      results = "hold")
+```
+
+\newpage
+
+# Introduction
+
+Despite the many substantial improvements in cancer treatments, lung 
+cancer remains a significant source of many deaths in the United States.  The standard treatments of resection, chemotherapy, and radiotherapy have improved dramatically 
+over time, but are still painful, expensive, and debiltating, and are by no means 
+completely effective.  Thus there is a continued need to better understand 
+possible preventive measures and alternative treatment options, including 
+environmental and dietary changes.  Toward this end, a series of studies in the 1980s and 1990s sought to better understand the role and effects of beta carotene with respect 
+to cancer risk.
+
+An early review by Peto et al. [-@peto1981can] considered evidence from a collection of
+prospective and retrospective studies that suggested an association between higher serum levels of beta-carotene and lower cancer incidence.  Although the evidence was 
+not conclusive, the need and hope of developing more effective cancer treatments 
+prompted Peto et al. to propose and call for more targeted and controlled clinical trials  to better determine the role and effects of 
+beta carotene. \footnote{Adding some context, it seems that, at the time of the article, developing cancer was such a salient fear that the editor of $Nature$ felt the need to caution readers that the evidence of beta carotene 
+benefits was still limited, and not yet sufficient to justify the consumption of large quantities of carrots.}
+
+A later review by Ziegler [-@ziegler1989review] again found some weak evidence of a 
+possible protective effect of beta carotene, largely on the evidence that 
+lower serum beta carotene levels were consistently found to be 
+associated with an increased incidence of lung cancer. Ziegler does however acknowledge that many of the relevant studies did not properly adjust for important possible confounders, such as smoking status and the other dietary benefits of eating fruits and vegetables that have high concentrations of beta carotene.
+
+Continuing the effort to understand the effects of beta carotene, a study by Heinonen and Albanes [-@heinonen1994effect] examined both beta carotene and alpha-tocopherol (vitamin E) supplements on the incidence rates of lung cancer in male smokers.  A total of 29,133 male smokers age 50 to 69 years were randomly assigned to supplements of vitamin E, beta carotene, a combination of both, 
+or placebo, and followed for five to eight years.  Surprisingly, the study 
+observed an significant increase in the incidence of lung cancer among 
+those subjects receiving beta carotene supplements.  Additional cancers were 
+also monitored, and no significant effect of beta carotene supplementation 
+on the incidence rates of other cancers was observed.
+
+A similar study by Omenn et a. [-@omenn1996effects] also found possible adverse effects 
+of beta carotene supplementation in smokers, former smokers, and workers 
+exposed to asbestos, with a relative risk of lung cancer of 1.28 (95% CI 1.04, 1.57, $P = 0.02$) in the group receiving beta carotene supplments relative to the placebo group.
+
+With this somewhat conflicting, but increasingly negative, evidence of beta carotene's effect on cancer incidence, additional trials considering the 
+pharmokinetics of beta carotene supplementation in healthy non-smokers may help 
+clinicians develop a more thorough understanding of the overall role and effects of beta carotene.  The present study considers the data from a phase II trial designed to 
+assess the impact of daily beta carotene supplementation on serum beta carotene (SBC)
+levels, as well as serum vitamin E levels.  In particular, 
+this study is motivated by four objectives: 1) Is supplementation of beta-carotene 
+associated with a time-averaged increase in SBC? 2) Does beta-carotene supplementation affect the trend of SBC levels over time? 3) Does beta-carotene supplementation 
+affect SVE levels over time? 4) Are SVE levels associated with SBC levels over time?  In cases (1) - (3), in the presence of a significant effect, it is also of interest whether the effect is dose dependent.
+
+
+# Subjects and Methods
+
+For this study, 46 volunteers were placed in one of five treatment groups 
+by double-blind random assignment.  All subjects were given a daily placebo for 
+the first three months of the study, after which each subject received 
+active daily beta carotene supplements in the amount of 15, 30, 45, or 60 mg/day, or 
+placebo, depending on group assignment.  Each month, SBC and serum vitamin E (SVE) levels
+were recorded.  Other measured variables include age, gender, body mass index (BMI), and serum cholesterol level at baseline.  Follow-ups were conducted for 15 months, although not all patients remained in the study for the entire duration.  At the conclusion of the study,
+time averaged values of SBC and SVE were calculated for each subject as 
+the area under the curve (AUC) of the longitudinal trend line for each serum measurement.  
+Two subjects had less than 3 months on study following the baseline period from months 0 - 3, 
+and so were excluded from the analysis (although there are included in the summary statistics table, Table \ref(tab:datasummary).
+
+## Objective 1 Inference Methods
+
+Regarding the first objective, in order to test the effect of supplementation 
+on time-averaged SBC (AUC), we start with a simple linear regression model with only 
+a binary treatment indicator variable to test for an unadjusted relationship 
+between treatment and mean-centered SBC AUC.  We then extend this model to include 
+the adjustment covariates for age, gender, BMI.  Due to the randomized design,
+there should not be any substantial confounding effects, 
+but including these covariates may improve precision of the resulting estimates 
+by reducing the residual variance.  It is reasonable to expect age, gender, and 
+BMI to have a significant relationship with SBC, as these quantities 
+are significantly associated with many physiologic characteristics.  Since 
+beta-carotene is fat-soluble, models which included cholesterol were also 
+examined for the present study. However, cholesterol was not found to be significantly 
+associated with SBC in those models, so we exclude it from consideration here 
+and focus on the simpler adjustment models.  After testing the binary 
+treatment indicator, we test for significance of the supplement dosage level on SBC.  
+We code the dosage as a categorical rather than continuous variable in order to test 
+and assess each dosage level separately.
+
+Explicitly, the simple initial model (Model 1a) is
+
+$$\begin{aligned}
+SBCAUC &\sim N(\mu, \Sigma) \hspace{0.75in} \text{(Model 1a)}\\
+\mu &= \beta_0 + \beta_1 TRT,\\
+\Sigma &= \sigma^2_{\varepsilon} I_N.
+\end{aligned}$$
+
+
+adjusted model for testing the effect of supplementation on 
+the time-averaged SBC levels is
+
+$$\begin{aligned}
+SBCAUC &\sim N(\mu, \Sigma) \hspace{0.75in} \text{(Model 1b)}\\
+\mu &= \beta_0 + \beta_1 DOSE + \beta_2 AGE + \beta_3 MALE + \beta_4 BMI,\\
+\Sigma &= \sigma^2_{\varepsilon} I_N.
+\end{aligned}$$
+
+## Objective 2 Inference Methods
+
+For the second objective, we wish to test whether beta-carotene supplementation 
+affects the trend of beta-carotene levels over time.  Examining the 
+trends of the SBC levels over time, it is apparent that there is a 
+significant jump in SBC for all treatment patients at 4 months, which is the 
+first month of active treatment.  Since we are interested in the trajectory of 
+beta-carotene over time, we first calculate the baseline average for every patient 
+using the SBC measures from months 0 - 3.  Inspection the of the 
+SBC trends shows that the baseline period measurements are nearly flat for the majority 
+of subjects, and that there is a large, discontinuous jump at month 4 for those 
+subjects on treatment.  To address for this, we then subtract 
+the baseline average from each subject's trend, and consider only measurements from months 4 - 15 for the model.  
+This allows us to directly compare subjects' changes in SBC with respect to baseline, and avoids the issue 
+of constructing a model that correctly accounts for the discontinuity at the 4th month.  
+Moreover, it is not clear how a subject's measurements in the baseline period will 
+be related to the measurements during the treatment period, ledading to a risk of 
+biasing the parameter estimates if we group the measurements from the entire study period.  
+
+In order to select appropriate random effects terms and covariance structure, 
+we examine the trend plots, empirical covariance, and residuals from a fixed effects 
+regression of SBC levels over time.  This exploratory analysis suggests including 
+subject specific random intercepts, and using an $AR(1)$ correlation structure.  However, there is 
+a marked change in trend at around Month 12, which is consistent across subjects in all 
+non-placebo treatment groups, indicating that a quadratic time term or a spline 
+model with a knot at Month 12 should be used.  These considerations lead to 
+the following (unadjusted) linear mixed effects spline model
+
+
+$$
+SBC_{i, t} = b_{0i} + \beta_0 + \beta_1 DOSE_i + \beta_2 t + \beta_3 DOSE_i * t + \beta_4 (t - 12)_+ + \beta_5 DOSE_i * (t - 12)_+ + \varepsilon_{it}\hspace{0.35in}\text{(Model 2a)}
+$$
+
+where $t = 4, \cdots, T_i$ for $T_i$ the last month on study for subject $i$.  
+
+
+
+Examining the trend plots, it also appears that the variance increases after Month 12.  
+To reduce the impact of this heteroskedasticity, we also consider an adjusted 
+log transformation to stabilize the variance.  Specifically, letting $c$ be the 
+magnitude of the minimum SBC across all patients after baseline normalization, 
+we use the transformation 
+
+$$
+\log(SBC_{it} + c + 1) = \mu_i(t), \hspace{0.75in}\text{(Model 2b)}
+$$
+
+where $\mu_i(t)$ follows one of the previous models.  This transformation 
+is effective at mitigating the change in variance, but unfortunatley 
+changes the interpretation and implications of the model effects.  We include consideration 
+of this model, with the caveat that there is some dissent in the literature 
+over the use of non-linear transformations in mixed effects models.  Future 
+work may instead consider using a generalized linear mixed model to address 
+the heteroskedasticity.
+
+The results of adjusting Model 2b with the covariates for age, gender, and BMI, are also 
+provided below (labeled Model 2c).
+
+To compare the effectiveness of the mixed effects model, we also fit a fixed 
+effects spline model using ordinary least squares, and then adjust for the 
+correlation in the data using the robust variance estimator given by
+
+$$\hat\Sigma = (X^TX)^{-1} X^T V X (X^TX)^{-1},$$
+
+where $V$ is the diagonal matrix of squared residuals from the OLS fit.  This has 
+the advantage that it does not require correct specification of the 
+covariance structure, and should produce accurate inference given a sufficiently large sample size.
+
+
+
+## Objective 3 Inference Methods
+
+
+Due to the few models are somewhat complicated relative to the small number of 
+subjects in the data set, we also consider a fixed effects linear regression 
+
+For determining whether supplementation affects SVE levels over time, we follow 
+the same exploratory procedures as for Objective 2. The SVE levels over time exhibit a 
+shallow, roughly quadratic, trend for the treatment groups, and are 
+mostly flat for the control group.  The sharp bend at Month 12 seen 
+for SBC levels is absent here, thus we adopt a quadratic time model rather 
+the spline model.  The primary model for baseline 
+normalized SVE levels is
+
+$$\begin{aligned}
+&SVE_{i, t} = b_{0i} + \beta_0 + \beta_1 DOSE_i + \beta_2 t + \beta_3 DOSE * t + \beta_4 t^2 + \beta_5 DOSE_i * t^2 + \varepsilon_{it}\\
+&b_{0i} \sim N(0, \sigma^2_b)  \hspace{0.75in}\text{(Model 3a)}\\
+&\varepsilon_{i} \sim \mathcal{N}_{T_i}(0, \sigma^2I_{T_i})\\
+&Cov(SVE_{it}, SVE_{it^{\prime}}) = \sigma^2\rho^{|t - t^{\prime}|},
+\end{aligned}$$
+
+where $t = 1, \cdots, T_i$ as above.  The adjusted version of the model is given below as Model 3b.
+
+
+## Objective 4 Inference Methods
+
+Examining the sphaghetti plots of the SBC and SVE trends, a common 
+downward trend over time is evident for both values in the treatment groups, 
+particularly for the Doses 15-45 (Dose 60 seems to turn up near the end of the study).
+For this association, instead of relying on the choice of a sensible correlation 
+structure and model, which may be complicated by the presence of SBC as a covariate, which is  
+itself time-varying and measured with error, we can fit a simpler fixed effects linear 
+model and estimate the confidence interval of interest using the robust variance estimator [@huber2005robust].
+Specifically, we fit the linear regression 
+
+$$\begin{aligned}
+SVE \sim SBC + MONTH + AGE + MALE + BMI,  \hspace{0.75in}\text{(Model 4)}
+\end{aligned}$$
+
+and use the robust variance estimator as above.
+
+For an alternative perspective,  we can attempt to test the linear association over time using the SBC and SVE trend data
+with a block permutation procedure, wherein we permute 
+the subject labels on the SBC vector and again compute the correlation 
+with the SVE vector for each permutation.  Permuting subject labels 
+instead of individual time points retains the correlation structure 
+between measures from a single subject while still generating a reference 
+distribution under the null hypothesis of no association between SBC and SVE.  
+In order to simplify this calculation, we restrict the test to those 
+subjects who did not drop out of the study early, which consists of 39 subjects.  
+This procedure should also be robust to non-trivial covariance structure in the data, 
+but it will be underpowered relative to other methods for small sample sizes.
+
+## Computational Tools
+
+All linear mixed effects models were fit 
+using maximum likelihood procedures to facilitate the comparison of 
+nested models.
+
+Computations and modeling procedures were conducted in `R`.  The `nlme` package 
+was used for mixed effects modeling.  Full code, 
+documentation, and reproducible analyses are available on the author's GitHub.\footnote{url: \url{https://dspluta.github.com/DataAnalysisQual}. Access 
+can be requested at dpluta@uci.edu.}
+
+
+# Results
+
+
+## Description of Study Sample
+
+A summary description of the fixed variables in the data set is given in Table \@ref(tab:datasummary), 
+stratified by treatment group.  Overall, we see the covariates are roughly balanced 
+across the treatment groups. In particular, each group has, on average, at least 14 months on study per subject (the study duration was 16 months total).   
+The large difference in the SBC AUC levels between treatment and control groups 
+strongly suggests that there is some relationship between beta carotene supplementation 
+and SBC levels.  This table also suggests that the treatment does not 
+have a significant effect on time-averaged SVE levels.
+
+\begin{table}[htb]
+  \centering
+  \caption{Recorded patient characteristics by beta carotene dosage (in mg/day).}
+  \label{tab:data_summary}
+	\begin{tabular}{llllll}
+    \hline
+    & \textbf{Placebo} & \textbf{Dose 15} & \textbf{Dose 30} & \textbf{Dose 45} & \textbf{Dose 60}\\
+    & (N = 9)  & (N = 10)  & (N = 9) & (N = 8) & (N = 10) \\\hline\\
+    Covariate  & N  or Mean (SD) & N or Mean(SD) & N or Mean(SD) & N or Mean(SD) & N or Mean(SD)\\
+    \hline\\
+    Months on Study & 14.33 (2.87) & 14.30 (3.65) & 15.78 (0.44) & 14.88 (2.32) & 14.40 (3.78)\\ 
+    SBC AUC & 384.19 (457.61) & 1131.81 (319.87) & 1309.30 (273.37) & 1324.29 (297.26) & 1522.56 (249.53)\\
+    SVE AUC & 7.98 (1.20) & 7.97 (0.86) & 8.23 (1.11) & 8.04 (0.49) & 8.35 (0.74)\\ 
+    Age & 56.11 (4.04) & 56.30 (4.64) & 57.44 (4.25) & 55.88 (3.14) & 56.50 (5.21) \\
+    Gender & & & & &\\
+      \hspace{0.25in} Female & 4 & 5 & 6 & 4 & 5\\
+      \hspace{0.25in} Male & 5 & 5 & 3 & 4 & 5\\
+    BMI & 26.18 (3.59) & 25.69 (3.58) & 25.83 (2.66) & 25.35 (3.32) & 24.94 (2.43)\\
+    Cholesterol & 216.00 (27.17) & 223.00 (29.72) & 214.44 (35.28) & 213.31 (33.54) & 238.05 (38.88)\\ 
+    \hline
+    \end{tabular}\\
+\end{table}
+
+
+
+
+## Objective 1: Effects of Supplementation on Time-averaged Serum Beta Carotene Levels
+
+The results for Model 1a are given in Table \@ref(tab:fit1a) below.  This simple model 
+gives a significant treatment effect of 932.45 $(95\% CI 675.3, 1189.6)$, indicating 
+that, as expected, beta-carotene supplementation does produce a significantly higher 
+time-averaged SBC.
+
+```{r fit1a}
+fit_1a <- lm(cauc_c ~ trt, data = dat_pat)
+lmCI_kable(fit_1a, rownames = c("Intercept", "Trt"), caption = "Estimates from Model 1a", digits = 4)
+```
+
+Results for Model 1b are given in Table \@ref(tab:fit1b).  This model includes 
+treatment group as a factor, and the adjustment covariates age, gender, and BMI as adjustment.  
+As expected from the previous model, each dose level is individually significant.  Testing the 
+linear contrasts for differences in dose effects, only D0se 15 and Dose 60 
+are significantly different, with an estimated difference of $-340.8 (95\% CI -622.7, -58.9)$.
+
+```{r fit1b}
+fit_1b <- lm(cauc_c ~ factor(dose) + age + male + bmi, data = dat_pat)
+lmCI_kable(fit_1b, rownames = c("Intercept", "Dose 15", "Dose 30", "Dose 45", "Dose 60", "Age", "Male", "BMI"), caption = "Estimates from Model 1b")
+```
+
+
+
+
+## Objective 2: Effects of Supplementation on Serum Beta Carotene Levels Over Time
+
+Table \@ref(tab:fit2a) shows a highly significant effect of 
+supplementation on SBC levels over time, averaged across all dose groups ($P <3.6\times 10^{-6}$), 
+but does not show a significant interaction between treatment over time.  This 
+is likely due to the sharp change in the SBC trends around month 12.  To 
+adequately capture this change, Model 2b uses a first order spline with a 
+single knot at month 12 (Table \@ref(tab:fit2b)).  The treatment effect 
+and interaction of the treatment with time prior to the knot are both 
+highly significant; after month 12, the time effect itself is strongly significant ($P < 10^{-4}$), 
+but the interaction with the treatment is not.
+
+```{r fit2a}
+fit_2a <- lm(bcarot_trans ~ month + trt + month * trt, data = dat_post)
+robust.se.lm(fit_2a)
+```
+
+Testing for the dose effect in the spline model (Table \@ref(tab:fit2c)), we find that 
+all of the dose main effects are very significant (all $P < 10^{-8}$).  The temporal main 
+effect is moderately significant before and after the knot, with $P \approx 0.03$, 
+and the time-dose interaction is also moderately significant prior to the knot.  
+The interactions are not significant after month 12.
+
+For comparison, we also fit a mixed effects model version of the spline model, 
+with an $AR(1)$ correlation structure (fixed effect estimates given in Table \@ref(tab:fitlme4)).  
+The corresponding treatment group estimates match those of the fixed model in terms of 
+significance.  This is somewhat expected, but the validity of these 
+estimates still rely on a correctly specified covariance structure, and is 
+an inherently more complex model compared the fixed effects version, so it is 
+not clear if applying the mixed effects model is required or justified for this data set.
+
+## Objective 3: Effects of Supplementation on Serum Vitamin E Levels Over Time
+
+Similar to the results and methods of Objective 2, we consider both a 
+mixed effects and fixed effects model.  Results are given in \@ref(tab:fit_3b).   
+
+
+## Objective 4: Association of Serum Vitamin E with Serum Beta Carotene Over Time
+
+The robust variance estimates for Model 4 are provided in Table \@ref(tab:fit4).  
+Also fit but not shown here was the reduced model $SVE \sim SBC$, which did not 
+yield a significant association ($P = 0.13$).  However, from the $95\%$ CI for 
+the effect of SBC on SVE in Model 4 of $(-0.0001, -3.02)$, it is questionable 
+whether this effect is practically significant.  It should also be noted that, as with the above models, the 
+data used here was from only the treatment period after month 3; when including the entire 
+time series, the $P$-value for SBC drops to $0.018$, which is still significant, but much reduced.
+Considering the trends of the treatment groups in the plots for SBC and SVE, it 
+seems possible that the supplementation is actually driving this relationship 
+by somehow causing both levels to drop after approximately a year of daily supplements.
+
+
+
+
+```{r fit4}
+fit_4c <- lm(vite_norm ~ bcarot_norm + male + bmi + age + month, data = dat_post)
+out_4c <- round(robust.se.lm(fit_4c)[, c(1, 3, 4, 5, 6)], digits = 4)
+rownames(out_4c) <- c("Intercept", "SBC", "Male", "BMI", "Age", "Month")
+colnames(out_4c) <- colnames(out_4c) <- c("Est.", "CI95 Lo", "CI95 Hi", "t value", "P(>|t|)")
+kable(out_4c, booktabs = TRUE, caption = "Model 4 results, testing association of SBC with SVE over time.")
+```
+
+    
+# Discussion
+
+Given the results of the present analysis, there seems to be mounting evidence 
+that supplementation with beta carotene can have serious effects on body chemistry, 
+including an eventual decrease in overall serum beta carotene levels after 
+a year of daily supplements.  This effect was observed across all dose levels. This drop in 
+beta carotene was also found to be significantly associated with to drops in 
+serum vitamin E levels.
+
+While further studies may be merited to better understand the mechanisms by which 
+the beta carotene supplements are adversely affecting the serum levels, it seems clear 
+that regular beta carotene supplements should not be advised for the average healthy 
+adult.
+
+# Figures
+
+## Descriptive Plots
+
+```{r, bcar_hist}
+dat_plt <- dat_post
+dat_plt$trt <- factor(dat_plt$trt)
+levels(dat_plt$trt) <- c("Control", "Dose > 0")
+ggplot(dat_plt, aes(x = bcarot, fill = trt)) + 
+  geom_histogram(binwidth = 250, colour = "black", alpha = 0.35) +
+  facet_grid(~ trt, scales = "free") + 
+  guides(fill = FALSE) + 
+  xlab("SBC Levels (ug/mL)") + 
+  ylab("Frequency") +
+  th
+```
+
+
+```{r, bcar_hist_dose}
+dat_plt <- dat_post
+dat_plt$dose <- factor(dat_plt$dose)
+levels(dat_plt$dose) <- paste("Dose", c(0, 15, 30, 45, 60), "mg/day")
+ggplot(dat_plt, aes(x = bcarot, fill = factor(dose))) + 
+  geom_histogram(binwidth = 250, colour = "black", alpha = 0.35) +
+  facet_grid(~ factor(dose), scales = "free") + 
+  guides(fill = FALSE) + 
+  xlab("SBC Levels (ug/mL)") + 
+  ylab("Frequency") +
+  th
+```
+
+```{r, bcar_trans_hist}
+dat_plt <- dat_post
+dat_plt$trt <- factor(dat_plt$trt)
+levels(dat_plt$trt) <- c("Control", "Dose > 0")
+ggplot(dat_plt, aes(x = bcarot_trans, fill = trt)) + 
+  geom_histogram(binwidth=.5, colour = "black", alpha = 0.35) +
+  facet_grid(~ trt, scales = "free") + 
+  guides(fill = FALSE) + 
+  xlab("Log of Adjusted SBC Levels") + 
+  ylab("Density") +
+  th
+```
+
+```{r, plt_SBC}
+dat_plt <- dat
+dat_plt$dose <- factor(dat$dose)
+levels(dat_plt$dose) <- paste("Dose", c(0, 15, 30, 45, 60), "mg/day")
+plt_SBC <- ggplot(dat_plt, aes(x = month, y = bcarot, color = as.factor(ptid))) + 
+  geom_line(alpha = 0.75, size = 1) + 
+  geom_point(size = I(1.4), color = I("black"), aes(fill = as.factor(ptid)), shape = 21, alpha = 0.5) + 
+  guides(color = FALSE, fill = FALSE) +
+  facet_wrap(~ dose, ncol = 2) + 
+  xlab("Month") + 
+  ylab("Baseline Adj. Serum Beta Carotene (ug/mL)") + 
+  ggtitle("Baseline Adj. SBC over Time by Dose") +  th
+plt_SBC
+```
+
+```{r, plt_SBC_trans}
+dat_plt <- dat_post
+dat_plt$dose <- factor(dat_post$dose)
+levels(dat_plt$dose) <- paste("Dose", c(0, 15, 30, 45, 60), "mg/day")
+plt_SBC_trans <- ggplot(dat_plt, aes(x = month, y = bcarot_trans, color = as.factor(ptid))) + 
+  geom_line(alpha = 0.75, size = 1) + 
+  geom_point(size = I(1.4), color = I("black"), aes(fill = as.factor(ptid)), shape = 21, alpha = 0.5) + 
+  guides(color = FALSE, fill = FALSE) +
+  facet_wrap(~ dose, ncol = 2) + 
+  xlab("Month") + 
+  ylab("Log Trans. Adj. SBC") + 
+  ggtitle("Log of Adjusted SBC over Time by Dose") + 
+  th
+plt_SBC_trans
+```
+
+```{r, plt_SBC_trans_dose}
+dat_plt <- dat_post
+dat_plt$dose <- factor(dat_post$dose)
+levels(dat_plt$dose) <- paste("Dose", c(0, 15, 30, 45, 60), "mg/day")
+dat_plt <- dat_plt %>% filter(trt == 1)
+plt_SBC_trans_dose <- ggplot(dat_plt, aes(x = month, y = bcarot_trans, color = as.factor(ptid))) + 
+  geom_line(alpha = 0.75, size = 1) + 
+  geom_point(size = I(1.4), color = I("black"), aes(fill = as.factor(ptid)), shape = 21, alpha = 0.5) + 
+  guides(color = FALSE, fill = FALSE) +
+  facet_wrap(~ dose, ncol = 2) + 
+  xlab("Month") + 
+  ylab("Log Trans. Adj. SBC") + 
+  ggtitle("Log of Adjusted SBC over Time by Dose") + 
+  th
+plt_SBC_trans_dose
+```
+
+```{r, vite_hist}
+dat_plt <- dat_post
+dat_plt$trt <- factor(dat_plt$trt)
+levels(dat_plt$trt) <- c("Control", "Dose > 0")
+ggplot(dat_plt, aes(x = vite, fill = trt)) + 
+  geom_histogram(binwidth = 1, colour = "black", alpha = 0.35) +
+  facet_grid(~ trt, scales = "free") + 
+  guides(fill = FALSE) + 
+  xlab("Vit. E Levels (ug/mL)") + 
+  ylab("Frequency") +
+  ggtitle("Distribution of Serum Vit. E Levels Over Time") +
+  th
+```
+
+```{r, plt_vite}
+dat_plt <- dat_post
+dat_plt$dose <- factor(dat_post$dose)
+levels(dat_plt$dose) <- paste("Dose", c(0, 15, 30, 45, 60), "mg/day")
+plt_vite <- ggplot(dat_plt, aes(x = month, y = vite_norm, color = as.factor(ptid))) + 
+  geom_line(alpha = 0.75, size = 1) + 
+  geom_point(size = I(1.4), color = I("black"), aes(fill = as.factor(ptid)), shape = 21, alpha = 0.5) + 
+  guides(color = FALSE, fill = FALSE) +
+  facet_wrap(~ dose, ncol = 2) + 
+  xlab("Month") + 
+  ylab("Adj. Serum Vit. E (ug/mL)") + 
+  ggtitle("Baseline Adjusted Serum Vit E over Time by Dose") +  th
+plt_vite
+```
+
+## Figures: Objective 2
+
+
+
+```{r, resid_acf_sbc}
+fit <- lm(bcarot_trans ~ dose * bs(month, knots = c(12), degree = 1) + age + bmi + male, data = dat_post)
+resids <- dat_post$bcarot_trans - fitted(fit)
+resid_acf <- with(acf(resids, plot = FALSE), data.frame(lag, acf))
+q <- 
+  ggplot(data = resid_acf, mapping = aes(x = lag, y = acf)) +
+  geom_hline(aes(yintercept = 0)) +
+  geom_segment(mapping = aes(xend = lag, yend = 0)) + 
+  geom_hline(aes(yintercept = 0.1, color = I("blue"), linetype = I(2))) +
+  ggtitle("ACF for Residuals from Fixed Effects Spline Model for SBC") +
+  th
+q
+```
+
+```{r, variogram_sbc}
+fit <- lm(bcarot_trans ~ dose * bs(month, knots = c(12), degree = 1) + age + bmi + male, data = dat_post)
+resids <- dat_post$bcarot_trans - fitted(fit)
+dat_vario <- lda.variogram(dat_post$ptid, resids, dat_post$month )
+var.est <- var( resids )
+plot( dat_vario$delta.x, dat_vario$delta.y, pch = ".",
+        ylim = c( 0, 1.2*var.est ), xlab = "Change in time",
+        ylab = "Change in residual over time squared",
+      main = "Variogram for SBC Fixed Effects Spline Model")
+lines( smooth.spline( dat_vario$delta.x, dat_vario$delta.y,
+                        df = 5 ), lwd = 3 )
+abline( h = var.est, lty = 3, lwd = 2 )
+```
+
+## Figures: Objective 3
+
+```{r, resid_acf_sve}
+fit <- lm(vite_norm ~ dose * I(month^2) + age + bmi + male, data = dat_post)
+resids <- dat_post$vite_norm - fitted(fit)
+resid_acf <- with(acf(resids, plot = FALSE), data.frame(lag, acf))
+q <- 
+  ggplot(data = resid_acf, mapping = aes(x = lag, y = acf)) +
+  geom_hline(aes(yintercept = 0)) +
+  geom_segment(mapping = aes(xend = lag, yend = 0)) + 
+  geom_hline(aes(yintercept = 0.1, color = I("blue"), linetype = I(2))) +
+  ggtitle("ACF for Residuals from Fixed Effects Model for SVE") +
+  th
+q
+```
+
+```{r, variogram_sve}
+fit <- lm(vite_norm ~ dose * I(month^2) + age + bmi + male, data = dat_post)
+resids <- dat_post$vite_norm - fitted(fit)
+dat_vario <- lda.variogram(dat_post$ptid, resids, dat_post$month )
+var.est <- var( resids )
+plot( dat_vario$delta.x, dat_vario$delta.y, pch = ".",
+        ylim = c( 0, 1.2*var.est ), xlab = "Change in time",
+        ylab = "Change in residual over time squared",
+      main = "Variogram for SBC Fixed Effects Spline Model")
+lines( smooth.spline( dat_vario$delta.x, dat_vario$delta.y,
+                        df = 5 ), lwd = 3 )
+abline( h = var.est, lty = 3, lwd = 2 )
+```
+
+## Figures: Objective 4
+
+```{r}
+cor_stat <- cor(dat_pat$cauc, dat_pat$vauc)
+n_perms <- 10000
+cauc <- dat_pat$cauc
+vauc <- dat_pat$vauc
+n <- length(cauc)
+cors <- c()
+for (p in 1:n_perms) {
+  cors[p] <- cor(cauc[sample(1:n, replace = F)], vauc)
+}
+cors_tib <- tibble(cors)
+ggplot(cors_tib, aes(x = cors)) +
+  geom_histogram(fill = I("purple4"), alpha = 0.5, color = I("black")) +
+  guides(fill = FALSE, color = FALSE) +
+  ggtitle("Permutation Test for Association of SBC-AUC with SVE-AUC") +
+  geom_vline(xintercept = cor_stat, size = 2, color = I("orange"), alpha = .5) +
+  xlab("Correlation") + 
+  ylab("Count") +
+  th
+```
+
+```{r}
+# Just complete obs
+cauc_comp <- dat_comp$cauc
+vauc_comp <- dat_comp$vauc
+n_comp <- length(table(dat_comp$ptid))
+
+cor_stat <- cor(dat_comp$bcarot, dat_comp$vite)
+cors <- c()
+for (p in 1:n_perms) {
+  perm <- sample(1:n_comp, replace = F)
+  perm <- rep(perm, each = 16)
+  cors[p] <- cor(dat_comp$bcarot, dat_comp$vite[perm])
+}
+ggplot(cors_tib, aes(x = cors)) +
+  geom_histogram(fill = I("turquoise4"), alpha = 0.5, color = I("black")) +
+  guides(fill = FALSE, color = FALSE) +
+  ggtitle("Reference Distribution for Association of SBC with SVE over Time") +
+  geom_vline(xintercept = 0.033, size = 2, color = I("magenta"), alpha = .5) +
+  xlab("Correlation") + 
+  ylab("Count") +
+  th
+```
+
+
+
+# Appendix
+
+## Additional Figures
+
+```{r dosediff1a}
+plt <- ggplot(dat, aes(y = cauc, x = factor(dose))) + 
+  geom_boxplot() + 
+  ggtitle("Model 1b, Dose Effects on SBC-AUC") + 
+  th
+plt
+```
+
+# Additional Tables
+
+```{r fit2b}
+fit_2b <- lm(bcarot_trans ~ trt + trt * bs(month, degree = 1, knots = c(12)), data = dat_post)
+summary(fit_2b)
+robust.se.lm(fit_2b)
+```
+
+```{r fit2c}
+fit_2c <- lm(bcarot_trans ~ factor(dose) + factor(dose) * bs(month, degree = 1, knots = c(12)), data = dat_post)
+robust.se.lm(fit_2c)
+out_4c <- round(robust.se.lm(fit_2c)[, c(1, 3, 4, 5, 6)], digits = 4)
+rownames(out_4c) <- c("Intercept", "Dose 15", "Dose  30", "Dose 45", "Dose 60", "Month < 12", "Month >= 12",  "Dose 15 * Mo. < 12", 
+                      "Dose 30 * Mo. < 12", "Dose 45 * Mo. < 12",  "Dose 60 * Mo. < 12",  "Dose 15 * Mo. >= 12",
+                      "Dose 30 * Mo. >= 12",
+                      "Dose 45 * Mo. >= 12",
+                      "Dose 60 * Mo. >= 12")
+colnames(out_4c) <- colnames(out_4c) <- c("Est.", "CI95 Lo", "CI95 Hi", "t value", "P(>|t|)")
+kable(out_4c, booktabs = TRUE, caption = "Model 4 results, testing association of SBC with SVE over time.")
+```
+
+```{r fitlme4}
+fit_lme4 <- lme(bcarot_trans ~ trt + trt * bs(month, degree = 1, knots = c(12)) , 
+                method = "ML", random = reStruct(~ 1 | ptid, pdClass = "pdSymm"),
+                correlation = corAR1( form = ~ month | ptid),
+                data = dat_post)
+summary(fit_lme4)
+```
+
+```{r fit3b}
+fit_3b <- lme(vite_norm ~ month + dose + month * dose + I(month^2) * dose + male + age + bmi, method = "ML",
+               random = reStruct(~ 1 | ptid, pdClass = "pdSymm"),
+               correlation = corAR1( form = ~ month),
+               data = dat_post)
+summary(fit_3b)
+```
+
+## Notes on Data Processing
+
+
+1. ID 26 had an initial dose listed as "30", with all subsequent doses listed as "0".  Changed 
+initial value to "0", as the "30" is most likely a typo (previous patient ID 25 has a dose of "30").
+
+2. IDs 44 & ID 45 were excluded from the analysis due to having too few months on study.
+
+3. After removing ID 45, there were 6 `NA` measures, simultaneous for `bcarot` and `vite`.  
+All `NA`s were imputed with dosage group average at respective month
+
+4. A number of patients had two measurements recorded for a given month. 
+It is not clear why these repeated measures were taken, but the values are 
+not obviously erroneous.  In order to facilitate modeling the 
+autocorrelation structure of the data set, and to make the 
+data more consistent across subjects, these repeated measures within a 
+single month for a patient were replaced by the average of the two values.  
+There may be a better was of utilizing these extra measurements if more 
+information regarding their occurrence can be obtained from the data collectors.
+
+
+# References
+
+
+
